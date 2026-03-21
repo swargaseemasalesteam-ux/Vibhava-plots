@@ -136,6 +136,99 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
 .legend-item { display: flex; align-items: center; gap: 5px; }
 .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
+/* ══════════════════════════════════════════
+   RESPONSIVE — TABLET (≤900px)
+══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  header { padding: 0 14px; height: 56px; }
+  .header-logo-text { font-size: 17px; }
+  .header-stats { gap: 5px; }
+  .stat-pill { font-size: 10px; padding: 3px 7px; }
+  .updates-btn { font-size: 11px; padding: 4px 10px; }
+  .sync-badge { font-size: 11px; padding: 4px 9px; }
+
+  .summary-row { grid-template-columns: repeat(2,1fr); gap: 10px; padding: 14px 14px 0; }
+  .summary-card { padding: 14px 14px; }
+  .sc-value { font-size: 26px; }
+  .sc-progress { margin: 10px 14px 0; padding: 12px 14px; }
+
+  .controls { padding: 12px 14px 6px; gap: 7px; }
+  .filter-btn { padding: 5px 12px; font-size: 12px; }
+  .search-box { min-width: 140px; }
+
+  .legend { padding: 0 14px 8px; }
+  .grid-section { padding: 6px 14px 24px; }
+  .plot-grid { grid-template-columns: repeat(auto-fill,minmax(80px,1fr)); gap: 7px; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — MOBILE (≤600px)
+══════════════════════════════════════════ */
+@media (max-width: 600px) {
+  /* Header — stack logo + compact right side */
+  header { padding: 0 12px; height: auto; min-height: 56px; flex-wrap: wrap; gap: 6px; padding-top: 8px; padding-bottom: 8px; }
+  .header-logo-text { font-size: 16px; }
+  .header-right { gap: 6px; flex-wrap: wrap; }
+  .header-stats { gap: 4px; }
+  .stat-pill { font-size: 10px; padding: 2px 6px; gap: 3px; }
+  .stat-dot { width: 6px; height: 6px; }
+  /* Hide "Today's Updates" text on mobile, show icon only */
+  .updates-btn { padding: 4px 8px; font-size: 11px; }
+  .sync-badge { padding: 4px 8px; font-size: 11px; }
+  .sync-badge span:last-child { display: none; } /* hide "Refresh" text */
+
+  /* Summary cards — 2x2 grid */
+  .summary-row { grid-template-columns: repeat(2,1fr); gap: 8px; padding: 10px 10px 0; }
+  .summary-card { padding: 12px 10px; border-radius: 10px; }
+  .sc-label { font-size: 9px; letter-spacing: 0.5px; }
+  .sc-value { font-size: 22px; }
+  .sc-icon { font-size: 22px; }
+  .sc-progress { margin: 8px 10px 0; padding: 10px 12px; border-radius: 10px; }
+  .sc-progress label { font-size: 10px; }
+
+  /* Controls */
+  .controls { padding: 10px 10px 4px; gap: 6px; }
+  .filter-btn { padding: 5px 10px; font-size: 11px; border-radius: 16px; }
+  .search-box { width: 100%; min-width: unset; max-width: unset; order: 5; }
+  .search-box input { font-size: 13px; padding: 8px 14px; }
+  .plot-count { order: 6; width: 100%; text-align: right; font-size: 11px; }
+
+  /* Legend */
+  .legend { padding: 0 10px 6px; font-size: 11px; gap: 10px; }
+
+  /* Grid — 4 per row on mobile */
+  .grid-section { padding: 4px 10px 24px; }
+  .grid-label { font-size: 11px !important; margin-bottom: 8px !important; }
+  .plot-grid { grid-template-columns: repeat(4,1fr); gap: 6px; }
+  .plot-card { padding: 7px 5px 6px; border-radius: 8px; }
+  .pc-num { font-size: 12px; }
+  .pc-size { font-size: 9px; }
+  .pc-badge { font-size: 8px; padding: 2px 4px; margin-top: 4px; }
+  .pc-corner { width: 6px; height: 6px; top: 4px; right: 4px; }
+
+  /* Updates panel — full width on mobile */
+  .updates-panel { width: 100%; }
+
+  /* Modals — full screen on mobile */
+  .modal-overlay { align-items: flex-end; }
+  .modal-box { width: 100%; max-width: 100%; border-radius: 18px 18px 0 0; max-height: 92vh; }
+  .modal-header { padding: 16px 16px 12px; border-radius: 18px 18px 0 0; }
+  .modal-header h2 { font-size: 18px; }
+  .modal-body { padding: 14px 16px 20px; }
+  .detail-section { padding: 12px; }
+  .modal-actions { gap: 8px; }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — SMALL MOBILE (≤380px)
+══════════════════════════════════════════ */
+@media (max-width: 380px) {
+  .plot-grid { grid-template-columns: repeat(3,1fr); gap: 5px; }
+  .pc-num { font-size: 11px; }
+  header { padding: 6px 10px; }
+  .header-stats { display: none; } /* hide stats pills on very small screens */
+}
+
 /* ── LOADING ── */
 #loading-overlay { position: fixed; inset: 0; background: rgba(240,250,244,0.92); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; gap: 16px; }
 #loading-overlay.hidden { display: none; }
