@@ -109,6 +109,25 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
 .search-box input:focus { border-color: #7B1A1A; }
 .plot-count { font-size: 12px; color: #888; margin-left: auto; }
 
+/* ── SIZE FILTER ── */
+.size-filter-bar { padding: 0 24px 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.size-filter-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
+.size-presets { display: flex; gap: 5px; flex-wrap: wrap; }
+.size-preset-btn { padding: 4px 11px; border-radius: 14px; border: 1.5px solid #e0d0d0; background: #fff; font-size: 11px; font-weight: 600; cursor: pointer; color: #666; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+.size-preset-btn:hover { border-color: #7B1A1A; color: #7B1A1A; }
+.size-preset-btn.active { background: #7B1A1A; color: #fff; border-color: #7B1A1A; }
+.size-custom { display: flex; align-items: center; gap: 5px; margin-left: 4px; }
+.size-custom input { width: 72px; padding: 4px 8px; border-radius: 10px; border: 1.5px solid #e0d0d0; font-family: 'DM Sans', sans-serif; font-size: 12px; outline: none; text-align: center; transition: border 0.2s; }
+.size-custom input:focus { border-color: #7B1A1A; }
+.size-custom span { font-size: 11px; color: #aaa; }
+.size-clear { padding: 4px 10px; border-radius: 14px; border: none; background: #fee2e2; color: #991b1b; font-size: 11px; font-weight: 600; cursor: pointer; display: none; font-family: 'DM Sans', sans-serif; }
+.size-clear.show { display: inline-block; }
+@media (max-width: 600px) {
+  .size-filter-bar { padding: 0 10px 8px; gap: 6px; }
+  .size-custom input { width: 60px; font-size: 11px; }
+  .size-preset-btn { font-size: 10px; padding: 3px 8px; }
+}
+
 /* ── GRID ── */
 .grid-section { padding: 8px 24px 32px; }
 .grid-title { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 12px; }
@@ -378,6 +397,24 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
   <span class="plot-count" id="plot-count"></span>
 </div>
 
+<!-- SIZE FILTER -->
+<div class="size-filter-bar">
+  <span class="size-filter-label">📐 Size:</span>
+  <div class="size-presets">
+    <button class="size-preset-btn" onclick="setSizePreset(0,200,this)">Under 200</button>
+    <button class="size-preset-btn" onclick="setSizePreset(200,300,this)">200–300</button>
+    <button class="size-preset-btn" onclick="setSizePreset(300,400,this)">300–400</button>
+    <button class="size-preset-btn" onclick="setSizePreset(400,600,this)">400+</button>
+  </div>
+  <div class="size-custom">
+    <input type="number" id="size-min" placeholder="Min" min="0" oninput="onCustomSizeInput()">
+    <span>–</span>
+    <input type="number" id="size-max" placeholder="Max" min="0" oninput="onCustomSizeInput()">
+    <span style="font-size:11px;color:#aaa;">sq.yds</span>
+  </div>
+  <button class="size-clear" id="size-clear" onclick="clearSizeFilter()">✕ Clear</button>
+</div>
+
 <!-- LEGEND -->
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:#e8a87c"></div> Available</div>
@@ -503,6 +540,8 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8147UlUS5JhRYrHDsL
 
 let plotDefs      = [];
 let currentFilter = 'all';
+let sizeMin = null;
+let sizeMax = null;
 let currentPlotId = null;
 let selectedStatus = null;
 let isLocked       = false;
@@ -564,11 +603,13 @@ async function saveToSheet(plotId, status, buyer, phone, bookingDate, scheme, sa
 
 // ── RENDER GRID ───────────────────────────────────────────────────────────
 function renderGrid() {
-  const query  = document.querySelector('.search-box input').value.trim().toLowerCase();
-  let   plots  = plotDefs;
+  const query = document.querySelector('.search-box input').value.trim().toLowerCase();
+  let plots = plotDefs;
 
   if (currentFilter !== 'all') plots = plots.filter(p => p.status === currentFilter);
   if (query) plots = plots.filter(p => p.id.includes(query));
+  if (sizeMin !== null) plots = plots.filter(p => parseFloat(p.size) >= sizeMin);
+  if (sizeMax !== null) plots = plots.filter(p => parseFloat(p.size) <= sizeMax);
 
   document.getElementById('plot-count').textContent = `${plots.length} plots`;
   document.getElementById('grid-label').textContent = `Vibhava — ${plots.length} plots shown`;
@@ -581,6 +622,43 @@ function renderGrid() {
       <div class="pc-size">${p.size} sq.yds</div>
       <div class="pc-badge badge-${p.status}">${p.status}</div>
     </div>`).join('');
+}
+
+// ── SIZE FILTER ────────────────────────────────────────────────────────────
+function setSizePreset(min, max, btn) {
+  // Toggle off if already active
+  if (btn.classList.contains('active')) {
+    clearSizeFilter();
+    return;
+  }
+  sizeMin = min === 0 ? null : min;
+  sizeMax = max;
+  document.getElementById('size-min').value = min === 0 ? '' : min;
+  document.getElementById('size-max').value = max;
+  document.querySelectorAll('.size-preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('size-clear').classList.add('show');
+  renderGrid();
+}
+
+function onCustomSizeInput() {
+  const minVal = document.getElementById('size-min').value;
+  const maxVal = document.getElementById('size-max').value;
+  sizeMin = minVal !== '' ? parseFloat(minVal) : null;
+  sizeMax = maxVal !== '' ? parseFloat(maxVal) : null;
+  document.querySelectorAll('.size-preset-btn').forEach(b => b.classList.remove('active'));
+  const hasSizeFilter = sizeMin !== null || sizeMax !== null;
+  document.getElementById('size-clear').classList.toggle('show', hasSizeFilter);
+  renderGrid();
+}
+
+function clearSizeFilter() {
+  sizeMin = null; sizeMax = null;
+  document.getElementById('size-min').value = '';
+  document.getElementById('size-max').value = '';
+  document.querySelectorAll('.size-preset-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('size-clear').classList.remove('show');
+  renderGrid();
 }
 
 function updateCounts() {
