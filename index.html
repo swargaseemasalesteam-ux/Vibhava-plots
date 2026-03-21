@@ -308,16 +308,35 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
     <div class="modal-body">
       <div class="detail-section">
         <h4>📐 Plot Details</h4>
-        <div class="detail-row"><span>Size</span><strong id="dm-size">—</strong></div>
-        <div class="detail-row"><span>Dimensions</span><strong id="dm-dims">—</strong></div>
-        <div class="detail-row"><span>Facing</span><strong id="dm-facing">—</strong></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #f0e8e0;">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.6px;color:#aaa;margin-bottom:3px;">Plot Number</div>
+            <div style="font-size:16px;font-weight:700;color:#7B1A1A;font-family:'Playfair Display',serif;" id="dm-plotnum">—</div>
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #f0e8e0;">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.6px;color:#aaa;margin-bottom:3px;">Size</div>
+            <div style="font-size:16px;font-weight:700;color:#7B1A1A;font-family:'Playfair Display',serif;" id="dm-size">—</div>
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #f0e8e0;">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.6px;color:#aaa;margin-bottom:3px;">Dimensions</div>
+            <div style="font-size:14px;font-weight:600;color:#1a2e1a;" id="dm-dims">—</div>
+          </div>
+          <div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #f0e8e0;">
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.6px;color:#aaa;margin-bottom:3px;">Facing</div>
+            <div style="font-size:14px;font-weight:600;color:#C8973A;" id="dm-facing">—</div>
+          </div>
+        </div>
       </div>
       <div class="detail-section">
-        <h4>💰 Pricing</h4>
-        <div class="detail-row"><span>Base Price/sq.yd</span><strong id="dm-base">—</strong></div>
-        <div class="detail-row"><span>Add. Charges/sq.yd</span><strong id="dm-add">—</strong></div>
-        <div class="price-highlight">
-          <span>Total Price</span>
+        <h4>💰 Pricing Breakdown</h4>
+        <div class="detail-row"><span>Base Price (per sq.yd)</span><strong id="dm-base">—</strong></div>
+        <div class="detail-row"><span>Plot Size</span><strong id="dm-size2">—</strong></div>
+        <div class="detail-row"><span>Base Amount</span><strong id="dm-baseamt">—</strong></div>
+        <div style="border-top:1px solid #f0e8e0;margin:8px 0;"></div>
+        <div class="detail-row"><span>Additional Charges (per sq.yd)</span><strong id="dm-add">—</strong></div>
+        <div class="detail-row"><span>Additional Amount</span><strong id="dm-addamt">—</strong></div>
+        <div class="price-highlight" style="margin-top:10px;">
+          <span>Total Price (Plot Only)</span>
           <strong id="dm-total">—</strong>
         </div>
       </div>
@@ -349,9 +368,6 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
         </div>
         <div class="status-opt opt-sold" onclick="selectStatus('sold')">
           <div class="opt-icon">🏠</div>Sold
-        </div>
-        <div class="status-opt opt-available" onclick="selectStatus('available')" style="grid-column:span 2">
-          <div class="opt-icon">✅</div>Release to Available
         </div>
       </div>
       <label class="modal-label">NAME <span style="color:#aaa;font-weight:400;text-transform:none;font-size:11px;">(required)</span></label>
@@ -507,14 +523,20 @@ function openDetailModal(id) {
   currentPlotId = id;
   isLocked = (p.status === 'sold' || p.status === 'reserved');
 
-  document.getElementById('dm-title').textContent  = `Plot #${p.id}`;
-  document.getElementById('dm-sub').textContent    = `${p.size} sq.yds · ${p.facing}`;
-  document.getElementById('dm-size').textContent   = `${p.size} sq.yds`;
-  document.getElementById('dm-dims').textContent   = p.dims || '—';
-  document.getElementById('dm-facing').textContent = p.facing || '—';
-  document.getElementById('dm-base').textContent   = p.baseRate ? `₹${p.baseRate.toLocaleString('en-IN')}` : '—';
-  document.getElementById('dm-add').textContent    = p.addRate  ? `₹${p.addRate.toLocaleString('en-IN')}` : '₹0';
-  document.getElementById('dm-total').textContent  = p.total    ? `₹${p.total.toLocaleString('en-IN')}` : '—';
+  document.getElementById('dm-title').textContent   = `Plot #${p.id}`;
+  document.getElementById('dm-sub').textContent     = `${p.size} sq.yds · ${p.facing}`;
+  document.getElementById('dm-plotnum').textContent = `#${p.id}`;
+  document.getElementById('dm-size').textContent    = `${p.size} sq.yds`;
+  document.getElementById('dm-size2').textContent   = `${p.size} sq.yds`;
+  document.getElementById('dm-dims').textContent    = p.dims || '—';
+  document.getElementById('dm-facing').textContent  = p.facing || '—';
+  document.getElementById('dm-base').textContent    = p.baseRate ? `₹${p.baseRate.toLocaleString('en-IN')} / sq.yd` : '—';
+  document.getElementById('dm-add').textContent     = p.addRate  ? `₹${p.addRate.toLocaleString('en-IN')} / sq.yd` : '₹0 / sq.yd';
+  const baseAmt = Math.round(p.baseRate * p.size);
+  const addAmt  = Math.round(p.addRate  * p.size);
+  document.getElementById('dm-baseamt').textContent = baseAmt ? `₹${baseAmt.toLocaleString('en-IN')}` : '—';
+  document.getElementById('dm-addamt').textContent  = addAmt  ? `₹${addAmt.toLocaleString('en-IN')}` : '₹0';
+  document.getElementById('dm-total').textContent   = p.total ? `₹${p.total.toLocaleString('en-IN')}` : '—';
 
   const card = document.getElementById('booking-info-card');
   if (isLocked) {
