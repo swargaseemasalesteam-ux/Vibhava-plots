@@ -19,7 +19,7 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
 .header-stats { display: flex; gap: 8px; }
 .stat-pill { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.12); padding: 4px 10px; border-radius: 14px; color: #fff; font-size: 11px; font-weight: 600; }
 .stat-dot { width: 7px; height: 7px; border-radius: 50%; }
-.dot-available { background: #e8a87c; }
+.dot-available { background: #4ade80; }
 .dot-reserved  { background: #facc15; }
 .dot-sold      { background: #f87171; }
 .sync-badge { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 20px; color: #fff; font-size: 12px; font-weight: 500; cursor: pointer; border: none; transition: background 0.2s; }
@@ -88,24 +88,24 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
 .sc-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 4px; }
 .sc-value { font-size: 32px; font-weight: 700; font-family: 'Playfair Display', serif; color: #7B1A1A; }
 .sc-icon { font-size: 32px; opacity: 0.7; }
-.sc-available .sc-value { color: #7B1A1A; }
+.sc-available .sc-value { color: #16a34a; }
 .sc-reserved  .sc-value { color: #d97706; }
 .sc-sold      .sc-value { color: #dc2626; }
 .sc-progress { margin: 0 24px; background: #fff; border-radius: 14px; padding: 14px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); border: 1px solid #f0e8e0; margin-top: 12px; }
 .sc-progress label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; display: block; margin-bottom: 8px; }
 .progress-bar { background: #f0e8e0; border-radius: 8px; height: 10px; overflow: hidden; }
-.progress-fill { height: 100%; background: linear-gradient(90deg,#C8973A,#e8a87c); border-radius: 8px; transition: width 0.6s ease; }
+.progress-fill { height: 100%; background: linear-gradient(90deg,#7B1A1A,#c0392b); border-radius: 8px; transition: width 0.6s ease; }
 
 /* ── CONTROLS ── */
 .controls { padding: 16px 24px 8px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.filter-btn { padding: 6px 16px; border-radius: 20px; border: 1.5px solid #cde8cd; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; color: #555; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+.filter-btn { padding: 6px 16px; border-radius: 20px; border: 1.5px solid #e0d0d0; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; color: #555; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
 .filter-btn:hover  { border-color: #7B1A1A; color: #7B1A1A; }
 .filter-btn.active { background: #7B1A1A; color: #fff; border-color: #7B1A1A; }
-.filter-btn.available.active { background: #C8973A; border-color: #C8973A; }
+.filter-btn.available.active { background: #27ae60; border-color: #27ae60; }
 .filter-btn.reserved.active  { background: #d97706; border-color: #d97706; }
 .filter-btn.sold.active      { background: #dc2626; border-color: #dc2626; }
 .search-box { flex: 1; min-width: 180px; max-width: 280px; }
-.search-box input { width: 100%; padding: 7px 14px; border-radius: 20px; border: 1.5px solid #cde8cd; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border 0.2s; }
+.search-box input { width: 100%; padding: 7px 14px; border-radius: 20px; border: 1.5px solid #e0d0d0; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border 0.2s; }
 .search-box input:focus { border-color: #7B1A1A; }
 .plot-count { font-size: 12px; color: #888; margin-left: auto; }
 
@@ -119,11 +119,11 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
 .plot-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); border-color: #7B1A1A; }
 .plot-card.status-sold      { background: #fff0f0; border-color: #fbb; }
 .plot-card.status-reserved  { background: #fffbf0; border-color: #fde68a; }
-.plot-card.status-available { background: #fdf8f0; border-color: #f5c6a0; }
+.plot-card.status-available { background: #f0fdf4; border-color: #bbf7d0; }
 .pc-num  { font-size: 15px; font-weight: 700; font-family: 'Playfair Display', serif; color: #7B1A1A; }
 .pc-size { font-size: 10px; color: #888; margin-top: 1px; }
 .pc-badge { margin-top: 6px; padding: 2px 7px; border-radius: 8px; font-size: 10px; font-weight: 700; text-align: center; text-transform: uppercase; letter-spacing: 0.3px; }
-.badge-available { background: #fde8d0; color: #7B1A1A; }
+.badge-available { background: #dcfce7; color: #15803d; }
 .badge-reserved  { background: #fef3c7; color: #92400e; }
 .badge-sold      { background: #fee2e2; color: #991b1b; }
 .pc-corner { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; }
