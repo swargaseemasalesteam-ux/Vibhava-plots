@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swargaseema's Vibhava — Plot Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: #fdf8f0; color: #1a2e1a; min-height: 100vh; }
+
+/* ── HEADER ── */
+header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding: 0 24px; display: flex; justify-content: space-between; align-items: center; height: 64px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,0.3); }
+.header-logo { display: flex; align-items: center; gap: 12px; }
+.header-logo img { height: 42px; }
+.header-logo-text { color: #fff; font-family: 'Playfair Display', serif; font-size: 20px; letter-spacing: 0.3px; }
+.header-logo-text span { color: #C8973A; }
+.header-right { display: flex; align-items: center; gap: 14px; }
+.header-stats { display: flex; gap: 8px; }
+.stat-pill { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.12); padding: 4px 10px; border-radius: 14px; color: #fff; font-size: 11px; font-weight: 600; }
+.stat-dot { width: 7px; height: 7px; border-radius: 50%; }
+.dot-available { background: #e8a87c; }
+.dot-reserved  { background: #facc15; }
+.dot-sold      { background: #f87171; }
+.sync-badge { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 20px; color: #fff; font-size: 12px; font-weight: 500; cursor: pointer; border: none; transition: background 0.2s; }
+.sync-badge:hover { background: rgba(255,255,255,0.25); }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #e8a87c; display: inline-block; }
+.sync-dot.syncing { background: #facc15; animation: pulse 1s infinite; }
+.sync-dot.err     { background: #f87171; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── UPDATES BTN ── */
+.updates-btn { position: relative; display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 5px 13px; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; transition: background 0.2s; }
+.updates-btn:hover { background: rgba(255,255,255,0.28); }
+.updates-count { background: #e74c3c; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; display: none; animation: badgePulse 2s infinite; }
+.updates-count.show { display: inline-block; }
+@keyframes badgePulse { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.5)} 60%{box-shadow:0 0 0 5px rgba(231,76,60,0)} }
+
+/* ── UPDATES PANEL ── */
+.upanel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); display: none; z-index: 900; backdrop-filter: blur(2px); }
+.upanel-overlay.open { display: block; }
+.updates-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 370px; background: #fff; box-shadow: -6px 0 30px rgba(0,0,0,0.18); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s ease; z-index: 901; }
+.updates-panel.open { transform: translateX(0); }
+.upanel-head { background: linear-gradient(135deg,#7B1A1A,#4a0e0e); padding: 18px 18px 14px; color: #fff; display: flex; justify-content: space-between; align-items: flex-start; }
+.upanel-head h3 { font-family: 'Playfair Display', serif; font-size: 18px; margin: 0; }
+.upanel-head p  { font-size: 11px; opacity: 0.7; margin: 3px 0 0; }
+.upanel-close { background: rgba(255,255,255,0.2); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.upanel-stats { display: flex; border-bottom: 1px solid #f0e8e0; }
+.upstat { flex: 1; padding: 10px 6px; text-align: center; border-right: 1px solid #f0e8e0; }
+.upstat:last-child { border-right: none; }
+.upstat-n { font-size: 20px; font-weight: 700; font-family: 'Playfair Display', serif; }
+.upstat-l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: #999; margin-top: 2px; }
+.upstat.s-sold .upstat-n { color: #c0392b; }
+.upstat.s-res  .upstat-n { color: #e67e22; }
+.upstat.s-avl  .upstat-n { color: #27ae60; }
+.upanel-filters { display: flex; gap: 5px; padding: 10px 14px; border-bottom: 1px solid #f0e8e0; background: #fdf8f0; flex-wrap: wrap; }
+.upf-btn { padding: 4px 11px; border-radius: 12px; border: 1px solid #ddd; background: #fff; font-size: 11px; font-weight: 600; cursor: pointer; color: #888; transition: all 0.15s; }
+.upf-btn.active            { background: #7B1A1A; color: #fff; border-color: #7B1A1A; }
+.upf-btn.f-sold.active     { background: #c0392b; border-color: #c0392b; }
+.upf-btn.f-res.active      { background: #e67e22; border-color: #e67e22; }
+.upf-btn.f-avl.active      { background: #27ae60; border-color: #27ae60; }
+.upanel-feed { flex: 1; overflow-y: auto; padding: 10px 14px; }
+.feed-item { display: flex; gap: 10px; padding: 10px 12px; border-radius: 10px; margin-bottom: 7px; border: 1px solid transparent; transition: transform 0.12s; }
+.feed-item:hover { transform: translateX(2px); }
+.feed-item.fi-sold      { background: #fdf0f0; border-color: #f5c6c6; }
+.feed-item.fi-reserved  { background: #fffbf0; border-color: #fde8a0; }
+.feed-item.fi-available { background: #fdf8f0; border-color: #b8f0cc; }
+.fi-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.fi-body { flex: 1; min-width: 0; }
+.fi-title { font-size: 13px; font-weight: 700; color: #1a2e1a; }
+.fi-status { font-weight: 700; }
+.fi-status.st-sold      { color: #c0392b; }
+.fi-status.st-reserved  { color: #e67e22; }
+.fi-status.st-available { color: #27ae60; }
+.fi-sub  { font-size: 11px; color: #777; margin-top: 2px; }
+.fi-meta { font-size: 10px; color: #aaa; margin-top: 3px; }
+.fi-time { font-size: 10px; color: #bbb; flex-shrink: 0; margin-top: 3px; white-space: nowrap; }
+.upanel-empty { text-align: center; padding: 40px 20px; color: #bbb; }
+.upanel-empty .ei { font-size: 44px; margin-bottom: 10px; }
+.upanel-footer { padding: 8px 14px; border-top: 1px solid #f0e8e0; font-size: 10px; color: #bbb; text-align: center; background: #fdf8f0; }
+
+/* ── SETUP BANNER ── */
+#setup-banner { display: none; background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 10px 20px; font-size: 13px; gap: 8px; align-items: center; }
+
+/* ── SUMMARY CARDS ── */
+.summary-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; padding: 20px 24px 0; }
+.summary-card { background: #fff; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); border: 1px solid #f0e8e0; display: flex; justify-content: space-between; align-items: center; }
+.sc-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 4px; }
+.sc-value { font-size: 32px; font-weight: 700; font-family: 'Playfair Display', serif; color: #7B1A1A; }
+.sc-icon { font-size: 32px; opacity: 0.7; }
+.sc-available .sc-value { color: #7B1A1A; }
+.sc-reserved  .sc-value { color: #d97706; }
+.sc-sold      .sc-value { color: #dc2626; }
+.sc-progress { margin: 0 24px; background: #fff; border-radius: 14px; padding: 14px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); border: 1px solid #f0e8e0; margin-top: 12px; }
+.sc-progress label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; display: block; margin-bottom: 8px; }
+.progress-bar { background: #f0e8e0; border-radius: 8px; height: 10px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg,#C8973A,#e8a87c); border-radius: 8px; transition: width 0.6s ease; }
+
+/* ── CONTROLS ── */
+.controls { padding: 16px 24px 8px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.filter-btn { padding: 6px 16px; border-radius: 20px; border: 1.5px solid #cde8cd; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; color: #555; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+.filter-btn:hover  { border-color: #7B1A1A; color: #7B1A1A; }
+.filter-btn.active { background: #7B1A1A; color: #fff; border-color: #7B1A1A; }
+.filter-btn.available.active { background: #C8973A; border-color: #C8973A; }
+.filter-btn.reserved.active  { background: #d97706; border-color: #d97706; }
+.filter-btn.sold.active      { background: #dc2626; border-color: #dc2626; }
+.search-box { flex: 1; min-width: 180px; max-width: 280px; }
+.search-box input { width: 100%; padding: 7px 14px; border-radius: 20px; border: 1.5px solid #cde8cd; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border 0.2s; }
+.search-box input:focus { border-color: #7B1A1A; }
+.plot-count { font-size: 12px; color: #888; margin-left: auto; }
+
+/* ── GRID ── */
+.grid-section { padding: 8px 24px 32px; }
+.grid-title { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 12px; }
+.plot-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(88px,1fr)); gap: 8px; }
+
+/* ── PLOT CARD ── */
+.plot-card { background: #fff; border-radius: 10px; padding: 10px 8px 8px; border: 1.5px solid #f0e8e0; cursor: pointer; transition: all 0.15s; position: relative; }
+.plot-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); border-color: #7B1A1A; }
+.plot-card.status-sold      { background: #fff0f0; border-color: #fbb; }
+.plot-card.status-reserved  { background: #fffbf0; border-color: #fde68a; }
+.plot-card.status-available { background: #fdf8f0; border-color: #f5c6a0; }
+.pc-num  { font-size: 15px; font-weight: 700; font-family: 'Playfair Display', serif; color: #7B1A1A; }
+.pc-size { font-size: 10px; color: #888; margin-top: 1px; }
+.pc-badge { margin-top: 6px; padding: 2px 7px; border-radius: 8px; font-size: 10px; font-weight: 700; text-align: center; text-transform: uppercase; letter-spacing: 0.3px; }
+.badge-available { background: #fde8d0; color: #7B1A1A; }
+.badge-reserved  { background: #fef3c7; color: #92400e; }
+.badge-sold      { background: #fee2e2; color: #991b1b; }
+.pc-corner { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; }
+.corner-available { background: #e8a87c; }
+.corner-reserved  { background: #facc15; }
+.corner-sold      { background: #f87171; }
+
+/* ── LEGEND ── */
+.legend { display: flex; gap: 14px; padding: 0 24px 8px; font-size: 12px; color: #666; }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* ── LOADING ── */
+#loading-overlay { position: fixed; inset: 0; background: rgba(240,250,244,0.92); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; gap: 16px; }
+#loading-overlay.hidden { display: none; }
+.loading-spinner { width: 44px; height: 44px; border: 4px solid #f0e8e0; border-top-color: #7B1A1A; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: #555; font-weight: 500; }
+
+/* ── MODALS ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 800; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+.modal-overlay.open { display: flex; }
+.modal-box { background: #fff; border-radius: 18px; width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+.modal-header { background: linear-gradient(135deg,#7B1A1A,#4a0e0e); padding: 20px 22px 16px; border-radius: 18px 18px 0 0; color: #fff; display: flex; justify-content: space-between; align-items: flex-start; }
+.modal-header h2 { font-family: 'Playfair Display',serif; font-size: 22px; }
+.modal-header p  { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+.modal-close { background: rgba(255,255,255,0.2); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.modal-body  { padding: 20px 22px 22px; }
+.detail-section { background: #fdf8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; border: 1px solid #f0e8e0; }
+.detail-section h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #C8973A; margin-bottom: 10px; font-weight: 700; }
+.detail-row  { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+.detail-row:last-child { margin-bottom: 0; }
+.detail-row span { color: #666; }
+.detail-row strong { color: #1a2e1a; font-weight: 600; }
+.price-highlight { background: linear-gradient(135deg,#7B1A1A,#C8973A); color: #fff !important; padding: 10px 14px; border-radius: 10px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+.price-highlight span { font-size: 12px; opacity: 0.85; }
+.price-highlight strong { font-size: 18px; font-family: 'Playfair Display',serif; }
+.booking-info-card { background: #fff; border: 1px solid #f0e8e0; border-radius: 10px; padding: 12px 14px; margin-top: 12px; }
+.booking-info-card h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #C8973A; margin-bottom: 8px; font-weight: 700; }
+.booking-info-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+.booking-info-row span   { color: #888; }
+.booking-info-row strong { color: #1a2e1a; }
+.dm-book-btn { width: 100%; margin-top: 14px; padding: 12px; background: linear-gradient(135deg,#7B1A1A,#C8973A); color: #fff; border: none; border-radius: 12px; font-family: 'DM Sans',sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s; }
+.dm-book-btn:hover { opacity: 0.9; }
+
+/* ── BOOKING MODAL ── */
+.status-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.status-opt { padding: 14px 10px; border-radius: 12px; border: 2px solid #f0e8e0; cursor: pointer; text-align: center; transition: all 0.15s; font-weight: 600; font-size: 14px; }
+.status-opt:hover { border-color: #7B1A1A; }
+.status-opt.selected.opt-reserved { background: #fef3c7; border-color: #d97706; color: #92400e; }
+.status-opt.selected.opt-sold     { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+.status-opt.selected.opt-available { background: #fde8d0; border-color: #C8973A; color: #7B1A1A; }
+.opt-icon { font-size: 22px; margin-bottom: 4px; }
+.modal-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 5px; margin-top: 12px; font-weight: 600; }
+.modal-input { width: 100%; padding: 10px 14px; border: 1.5px solid #f0e8e0; border-radius: 10px; font-family: 'DM Sans',sans-serif; font-size: 14px; outline: none; transition: border 0.2s; }
+.modal-input:focus { border-color: #7B1A1A; }
+.modal-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; cursor: pointer; }
+.modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+.btn-cancel { flex: 1; padding: 11px; border-radius: 10px; border: 1.5px solid #f0e8e0; background: #fff; font-family: 'DM Sans',sans-serif; font-size: 14px; cursor: pointer; color: #666; font-weight: 600; }
+.btn-save { flex: 2; padding: 11px; border-radius: 10px; border: none; background: linear-gradient(135deg,#7B1A1A,#C8973A); color: #fff; font-family: 'DM Sans',sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; }
+.btn-save:hover    { opacity: 0.9; }
+.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #7B1A1A; color: #fff; padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); transition: transform 0.3s ease; z-index: 9999; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.error { background: #dc2626; }
+</style>
+</head>
+<body>
+
+<div id="setup-banner">
+  ⚠️ <strong>Setup required:</strong> Replace <code>YOUR_SCRIPT_URL_HERE</code> with your Google Apps Script Web App URL.
+</div>
+
+<header>
+  <div class="header-logo">
+    <div class="header-logo-text">Swargaseema's <span>Vibhava</span></div>
+  </div>
+  <div class="header-right">
+    <div class="header-stats">
+      <div class="stat-pill"><span class="stat-dot dot-available"></span><span id="hdr-avail">0</span> Available</div>
+      <div class="stat-pill"><span class="stat-dot dot-reserved"></span><span id="hdr-res">0</span> Reserved</div>
+      <div class="stat-pill"><span class="stat-dot dot-sold"></span><span id="hdr-sold">0</span> Sold</div>
+    </div>
+    <button class="updates-btn" onclick="toggleUpdatesPanel()" title="Today's Updates">
+      📋 Today's Updates
+      <span class="updates-count" id="updates-count">0</span>
+    </button>
+    <button class="sync-badge" onclick="loadFromSheet()" title="Refresh">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span id="sync-label">Refresh</span>
+    </button>
+  </div>
+</header>
+
+<!-- TODAY'S UPDATES PANEL -->
+<div class="upanel-overlay" id="upanel-overlay" onclick="toggleUpdatesPanel()"></div>
+<div class="updates-panel" id="updates-panel">
+  <div class="upanel-head">
+    <div><h3>📋 Today's Updates</h3><p id="upanel-date"></p></div>
+    <button class="upanel-close" onclick="toggleUpdatesPanel()">✕</button>
+  </div>
+  <div class="upanel-stats">
+    <div class="upstat s-sold"><div class="upstat-n" id="ups-sold">0</div><div class="upstat-l">Sold</div></div>
+    <div class="upstat s-res"><div class="upstat-n" id="ups-res">0</div><div class="upstat-l">Reserved</div></div>
+    <div class="upstat s-avl"><div class="upstat-n" id="ups-avl">0</div><div class="upstat-l">Released</div></div>
+  </div>
+  <div class="upanel-filters">
+    <button class="upf-btn active" onclick="filterUpdates('all',this)">All</button>
+    <button class="upf-btn f-sold" onclick="filterUpdates('sold',this)">🏠 Sold</button>
+    <button class="upf-btn f-res"  onclick="filterUpdates('reserved',this)">🔖 Reserved</button>
+    <button class="upf-btn f-avl"  onclick="filterUpdates('available',this)">✅ Released</button>
+  </div>
+  <div class="upanel-feed" id="upanel-feed"></div>
+  <div class="upanel-footer">
+    🔄 Auto-refreshes every 2 minutes &nbsp;|&nbsp;
+    <button onclick="debugLog()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:10px;text-decoration:underline;">Debug</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading Vibhava plots…</div>
+</div>
+
+<!-- SUMMARY -->
+<div class="summary-row">
+  <div class="summary-card">
+    <div><div class="sc-label">Total Plots</div><div class="sc-value" id="sc-total">999</div></div>
+    <div class="sc-icon">🗺️</div>
+  </div>
+  <div class="summary-card sc-available">
+    <div><div class="sc-label">Available</div><div class="sc-value" id="sc-avail">—</div></div>
+    <div class="sc-icon">✅</div>
+  </div>
+  <div class="summary-card sc-reserved">
+    <div><div class="sc-label">Reserved</div><div class="sc-value" id="sc-res">—</div></div>
+    <div class="sc-icon">🔖</div>
+  </div>
+  <div class="summary-card sc-sold">
+    <div><div class="sc-label">Sold</div><div class="sc-value" id="sc-sold">—</div></div>
+    <div class="sc-icon">🏠</div>
+  </div>
+</div>
+<div class="sc-progress">
+  <label>Sales Progress</label>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <button class="filter-btn all active"       onclick="setFilter('all',this)">All</button>
+  <button class="filter-btn available"         onclick="setFilter('available',this)">Available</button>
+  <button class="filter-btn reserved"          onclick="setFilter('reserved',this)">Reserved</button>
+  <button class="filter-btn sold"              onclick="setFilter('sold',this)">Sold</button>
+  <div class="search-box"><input type="text" placeholder="🔍  Search plot number…" oninput="renderGrid()"></div>
+  <span class="plot-count" id="plot-count"></span>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#e8a87c"></div> Available</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#facc15"></div> Reserved</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div> Sold</div>
+</div>
+
+<!-- PLOT GRID -->
+<div class="grid-section">
+  <div class="plot-count" id="grid-label" style="font-size:13px;color:#555;font-weight:600;margin-bottom:10px;"></div>
+  <div class="plot-grid" id="plot-grid"></div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><h2 id="dm-title">Plot #—</h2><p id="dm-sub"></p></div>
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-section">
+        <h4>📐 Plot Details</h4>
+        <div class="detail-row"><span>Size</span><strong id="dm-size">—</strong></div>
+        <div class="detail-row"><span>Dimensions</span><strong id="dm-dims">—</strong></div>
+        <div class="detail-row"><span>Facing</span><strong id="dm-facing">—</strong></div>
+      </div>
+      <div class="detail-section">
+        <h4>💰 Pricing</h4>
+        <div class="detail-row"><span>Base Price/sq.yd</span><strong id="dm-base">—</strong></div>
+        <div class="detail-row"><span>Add. Charges/sq.yd</span><strong id="dm-add">—</strong></div>
+        <div class="price-highlight">
+          <span>Total Price</span>
+          <strong id="dm-total">—</strong>
+        </div>
+      </div>
+      <div class="booking-info-card" id="booking-info-card" style="display:none">
+        <h4>📋 Booking Details</h4>
+        <div class="booking-info-row"><span>Buyer</span><strong id="bi-buyer">—</strong></div>
+        <div class="booking-info-row"><span>Phone</span><strong id="bi-phone">—</strong></div>
+        <div class="booking-info-row"><span>Scheme</span><strong id="bi-scheme">—</strong></div>
+        <div class="booking-info-row"><span>Sales Person</span><strong id="bi-salesperson">—</strong></div>
+      </div>
+      <button class="dm-book-btn" id="dm-book-btn" onclick="openBookingModal()">
+        ✏️ Book / Update Plot
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="booking-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div><h2 id="bk-title">Book Plot</h2><p id="bk-sub"></p></div>
+      <button class="modal-close" onclick="closeBookingModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="status-options">
+        <div class="status-opt opt-reserved" onclick="selectStatus('reserved')">
+          <div class="opt-icon">🔖</div>Reserve
+        </div>
+        <div class="status-opt opt-sold" onclick="selectStatus('sold')">
+          <div class="opt-icon">🏠</div>Sold
+        </div>
+        <div class="status-opt opt-available" onclick="selectStatus('available')" style="grid-column:span 2">
+          <div class="opt-icon">✅</div>Release to Available
+        </div>
+      </div>
+      <label class="modal-label">NAME <span style="color:#aaa;font-weight:400;text-transform:none;font-size:11px;">(required)</span></label>
+      <input class="modal-input" id="modal-buyer" type="text" placeholder="Enter buyer name…">
+      <label class="modal-label">PHONE NUMBER <span style="color:#aaa;font-weight:400;text-transform:none;font-size:11px;">(required)</span></label>
+      <input class="modal-input" id="modal-phone" type="tel" placeholder="Enter phone number…">
+      <label class="modal-label">BOOKING DATE <span style="color:#aaa;font-weight:400;text-transform:none;font-size:11px;">(required)</span></label>
+      <input class="modal-input" id="modal-date" type="date">
+      <label class="modal-label">SCHEME</label>
+      <select class="modal-input modal-select" id="modal-scheme">
+        <option value="">— Select Scheme —</option>
+        <option value="1 Month Plan">1 Month Plan</option>
+        <option value="Spot Payment Plan">Spot Payment Plan</option>
+      </select>
+      <label class="modal-label">SALES PERSON NAME <span style="color:#aaa;font-weight:400;text-transform:none;font-size:11px;">(your name)</span></label>
+      <select class="modal-input modal-select" id="modal-salesperson-select" onchange="handleSalespersonSelect(this.value)">
+        <option value="">— Select Sales Person —</option>
+        <option value="Bhanu">Bhanu</option>
+        <option value="Mohan">Mohan</option>
+        <option value="Ramesh">Ramesh</option>
+        <option value="Venu">Venu</option>
+        <option value="Praveen">Praveen</option>
+        <option value="Mahesh">Mahesh</option>
+        <option value="Narsi Reddy">Narsi Reddy</option>
+        <option value="__other__">Other (type name below)</option>
+      </select>
+      <input class="modal-input" id="modal-salesperson" type="text" placeholder="Enter name…" style="display:none;margin-top:6px;">
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeBookingModal()">Cancel</button>
+        <button class="btn-save" id="btn-save" onclick="saveStatus()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg">Saved!</span></div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8147UlUS5JhRYrHDsL89Nc0O4XnQknC7sykcC5X_gXR_o8TeYHn-1b8R6Eo-4bXLV/exec';
+
+let plotDefs      = [];
+let currentFilter = 'all';
+let currentPlotId = null;
+let selectedStatus = null;
+let isLocked       = false;
+
+// ── SHEET LOAD ────────────────────────────────────────────────────────────
+async function loadFromSheet() {
+  if (SCRIPT_URL === 'YOUR_SCRIPT_URL_HERE') {
+    document.getElementById('setup-banner').style.display = 'flex';
+    document.getElementById('loading-overlay').classList.add('hidden');
+    setSyncStatus('err', 'Not configured');
+    return;
+  }
+  setSyncStatus('syncing', 'Loading…');
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=getAll`, { cache: 'no-store' });
+    const rows = await res.json();
+    plotDefs = rows.map(r => ({
+      id:          String(r.plotId),
+      size:        r.size        || '—',
+      facing:      r.facing      || '—',
+      dims:        r.dims        || '—',
+      baseRate:    Number(r.baseRate)  || 0,
+      addRate:     Number(r.addRate)   || 0,
+      total:       Number(r.total)     || 0,
+      status:      (r.status || 'available').toLowerCase(),
+      buyer:       r.buyer       || '',
+      phone:       r.phone       || '',
+      scheme:      r.scheme      || '',
+      salesperson: r.salesperson || '',
+    }));
+    renderGrid();
+    updateCounts();
+    setSyncStatus('ok', 'Live');
+    document.getElementById('loading-overlay').classList.add('hidden');
+    loadTodaysLog();
+  } catch(e) {
+    setSyncStatus('err', 'Offline');
+    document.getElementById('loading-overlay').classList.add('hidden');
+    showToast('⚠️ Could not reach Google Sheet.', 'error');
+    if (plotDefs.length) renderGrid();
+  }
+}
+
+function setSyncStatus(state, label) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  dot.className = 'sync-dot' + (state === 'syncing' ? ' syncing' : state === 'err' ? ' err' : '');
+  lbl.textContent = label;
+}
+
+// ── SAVE ──────────────────────────────────────────────────────────────────
+async function saveToSheet(plotId, status, buyer, phone, bookingDate, scheme, salesperson) {
+  const params = new URLSearchParams({ action:'update', plotId, status, buyer, phone, bookingDate, scheme, salesperson });
+  const res  = await fetch(`${SCRIPT_URL}?${params.toString()}`, { cache: 'no-store' });
+  const data = await res.json();
+  if (data.result !== 'ok') throw new Error(data.error || 'Unknown error');
+  return data;
+}
+
+// ── RENDER GRID ───────────────────────────────────────────────────────────
+function renderGrid() {
+  const query  = document.querySelector('.search-box input').value.trim().toLowerCase();
+  let   plots  = plotDefs;
+
+  if (currentFilter !== 'all') plots = plots.filter(p => p.status === currentFilter);
+  if (query) plots = plots.filter(p => p.id.includes(query));
+
+  document.getElementById('plot-count').textContent = `${plots.length} plots`;
+  document.getElementById('grid-label').textContent = `Vibhava — ${plots.length} plots shown`;
+
+  const grid = document.getElementById('plot-grid');
+  grid.innerHTML = plots.map(p => `
+    <div class="plot-card status-${p.status}" onclick="openDetailModal('${p.id}')">
+      <div class="pc-corner corner-${p.status}"></div>
+      <div class="pc-num">${p.id}</div>
+      <div class="pc-size">${p.size} sq.yds</div>
+      <div class="pc-badge badge-${p.status}">${p.status}</div>
+    </div>`).join('');
+}
+
+function updateCounts() {
+  const avail = plotDefs.filter(p => p.status==='available').length;
+  const res   = plotDefs.filter(p => p.status==='reserved').length;
+  const sold  = plotDefs.filter(p => p.status==='sold').length;
+  const total = plotDefs.length;
+  document.getElementById('sc-avail').textContent = avail;
+  document.getElementById('sc-res').textContent   = res;
+  document.getElementById('sc-sold').textContent  = sold;
+  document.getElementById('sc-total').textContent = total;
+  document.getElementById('hdr-avail').textContent = avail;
+  document.getElementById('hdr-res').textContent   = res;
+  document.getElementById('hdr-sold').textContent  = sold;
+  const pct = total ? Math.round((sold+res)/total*100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// ── FILTER ────────────────────────────────────────────────────────────────
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid();
+}
+
+// ── DETAIL MODAL ──────────────────────────────────────────────────────────
+function getPlotDef(id) { return plotDefs.find(p => p.id === String(id)); }
+
+function openDetailModal(id) {
+  const p = getPlotDef(id);
+  if (!p) return;
+  currentPlotId = id;
+  isLocked = (p.status === 'sold' || p.status === 'reserved');
+
+  document.getElementById('dm-title').textContent  = `Plot #${p.id}`;
+  document.getElementById('dm-sub').textContent    = `${p.size} sq.yds · ${p.facing}`;
+  document.getElementById('dm-size').textContent   = `${p.size} sq.yds`;
+  document.getElementById('dm-dims').textContent   = p.dims || '—';
+  document.getElementById('dm-facing').textContent = p.facing || '—';
+  document.getElementById('dm-base').textContent   = p.baseRate ? `₹${p.baseRate.toLocaleString('en-IN')}` : '—';
+  document.getElementById('dm-add').textContent    = p.addRate  ? `₹${p.addRate.toLocaleString('en-IN')}` : '₹0';
+  document.getElementById('dm-total').textContent  = p.total    ? `₹${p.total.toLocaleString('en-IN')}` : '—';
+
+  const card = document.getElementById('booking-info-card');
+  if (isLocked) {
+    document.getElementById('bi-buyer').textContent      = p.buyer      || '—';
+    document.getElementById('bi-phone').textContent      = p.phone      || '—';
+    document.getElementById('bi-scheme').textContent     = p.scheme     || '—';
+    document.getElementById('bi-salesperson').textContent= p.salesperson|| '—';
+    card.style.display = 'block';
+  } else {
+    card.style.display = 'none';
+  }
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeDetailModal() {
+  document.getElementById('detail-modal').classList.remove('open');
+  currentPlotId = null; isLocked = false;
+}
+
+// ── BOOKING MODAL ─────────────────────────────────────────────────────────
+function openBookingModal() {
+  const p = getPlotDef(currentPlotId);
+  if (!p) return;
+  document.getElementById('bk-title').textContent = `Book Plot #${p.id}`;
+  document.getElementById('bk-sub').textContent   = `${p.size} sq.yds · ${p.facing}`;
+  selectedStatus = null;
+  document.querySelectorAll('.status-opt').forEach(el => el.classList.remove('selected'));
+  document.getElementById('modal-buyer').value  = '';
+  document.getElementById('modal-phone').value  = '';
+  document.getElementById('modal-date').value   = new Date().toISOString().split('T')[0];
+  document.getElementById('modal-scheme').value = '';
+  document.getElementById('modal-salesperson-select').value = '';
+  document.getElementById('modal-salesperson').value = '';
+  document.getElementById('modal-salesperson').style.display = 'none';
+  document.getElementById('btn-save').disabled    = false;
+  document.getElementById('btn-save').textContent = 'Save';
+  document.getElementById('booking-modal').classList.add('open');
+}
+
+function closeBookingModal() { document.getElementById('booking-modal').classList.remove('open'); }
+
+function selectStatus(s) {
+  selectedStatus = s;
+  document.querySelectorAll('.status-opt').forEach(el => el.classList.remove('selected'));
+  document.querySelector(`.opt-${s}`).classList.add('selected');
+}
+
+function handleSalespersonSelect(val) {
+  const txt = document.getElementById('modal-salesperson');
+  if (val === '__other__') { txt.style.display = 'block'; txt.focus(); }
+  else { txt.style.display = 'none'; txt.value = ''; }
+}
+
+// ── SAVE STATUS ───────────────────────────────────────────────────────────
+async function saveStatus() {
+  if (!selectedStatus) { showToast('Please select a status', 'error'); return; }
+
+  const buyer       = document.getElementById('modal-buyer').value.trim();
+  const phone       = document.getElementById('modal-phone').value.trim();
+  const bookingDate = document.getElementById('modal-date').value;
+  const scheme      = document.getElementById('modal-scheme').value;
+  const spSelect    = document.getElementById('modal-salesperson-select').value;
+  const salesperson = (spSelect === '__other__' || spSelect === '')
+    ? document.getElementById('modal-salesperson').value.trim()
+    : spSelect;
+
+  if (selectedStatus !== 'available') {
+    if (!buyer)       { showToast('Please enter buyer name', 'error'); document.getElementById('modal-buyer').focus(); return; }
+    if (!phone)       { showToast('Please enter phone number', 'error'); document.getElementById('modal-phone').focus(); return; }
+    if (!salesperson) { showToast('Please select a sales person', 'error'); document.getElementById('modal-salesperson-select').focus(); return; }
+  }
+
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  try {
+    await saveToSheet(currentPlotId, selectedStatus, buyer, phone, bookingDate, scheme, salesperson);
+
+    const p = getPlotDef(currentPlotId);
+    if (p) {
+      p.status = selectedStatus; p.buyer = buyer; p.phone = phone;
+      p.scheme = scheme; p.salesperson = salesperson;
+    }
+    closeBookingModal();
+    closeDetailModal();
+    renderGrid();
+    updateCounts();
+    loadTodaysLog();
+
+    const msgs = { reserved:`🔖 Plot #${currentPlotId} reserved for ${buyer}`, sold:`🏠 Plot #${currentPlotId} sold to ${buyer}`, available:`✅ Plot #${currentPlotId} released` };
+    showToast(msgs[selectedStatus] || 'Saved!', 'success');
+  } catch(e) {
+    showToast('❌ Could not save. Check connection.', 'error');
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.className = 'toast' + (type==='error' ? ' error' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── TODAY'S UPDATES ───────────────────────────────────────────────────────
+let todaysLog = [], updatesFilter = 'all', updatesPanelOpen = false;
+
+async function debugLog() {
+  const feed = document.getElementById('upanel-feed');
+  feed.innerHTML = '<div style="padding:10px;font-size:11px;color:#555;">Fetching…</div>';
+  try {
+    const r1 = await fetch(`${SCRIPT_URL}?action=debug`,  { cache:'no-store' });
+    const t1 = await r1.text();
+    const r2 = await fetch(`${SCRIPT_URL}?action=getLog`, { cache:'no-store' });
+    const t2 = await r2.text();
+    feed.innerHTML = `<div style="padding:10px;font-size:11px;font-family:monospace;word-break:break-all;">
+      <b style="color:#7B1A1A">?action=debug:</b><br><span style="color:#333">${t1}</span>
+      <br><br><b style="color:#7B1A1A">?action=getLog:</b><br><span style="color:#333">${t2}</span></div>`;
+  } catch(e) {
+    feed.innerHTML = `<div style="padding:10px;color:red;font-size:11px;">Error: ${e.message}</div>`;
+  }
+}
+
+async function loadTodaysLog() {
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=getLog`, { cache:'no-store' });
+    const data = await res.json();
+    if (Array.isArray(data)) {
+      todaysLog = data;
+      refreshUpdatesBadge();
+      if (updatesPanelOpen) renderUpdatesFeed(updatesFilter);
+    }
+  } catch(e) {}
+}
+
+function refreshUpdatesBadge() {
+  const badge = document.getElementById('updates-count');
+  badge.textContent = todaysLog.length;
+  badge.classList.toggle('show', todaysLog.length > 0);
+}
+
+function toggleUpdatesPanel() {
+  updatesPanelOpen = !updatesPanelOpen;
+  document.getElementById('updates-panel').classList.toggle('open', updatesPanelOpen);
+  document.getElementById('upanel-overlay').classList.toggle('open', updatesPanelOpen);
+  if (updatesPanelOpen) {
+    const d = new Date();
+    document.getElementById('upanel-date').textContent = d.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    renderUpdatesFeed(updatesFilter);
+  }
+}
+
+function filterUpdates(f, btn) {
+  updatesFilter = f;
+  document.querySelectorAll('.upf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderUpdatesFeed(f);
+}
+
+function renderUpdatesFeed(filter) {
+  const items = filter==='all' ? todaysLog : todaysLog.filter(e => e.status===filter);
+  document.getElementById('ups-sold').textContent = todaysLog.filter(e=>e.status==='sold').length;
+  document.getElementById('ups-res').textContent  = todaysLog.filter(e=>e.status==='reserved').length;
+  document.getElementById('ups-avl').textContent  = todaysLog.filter(e=>e.status==='available').length;
+  const feed  = document.getElementById('upanel-feed');
+  if (!items.length) {
+    feed.innerHTML = `<div class="upanel-empty"><div class="ei">📭</div><p>No ${filter==='all'?'':filter+' '}updates today</p></div>`;
+    return;
+  }
+  const icons  = { sold:'🏠', reserved:'🔖', available:'✅' };
+  const labels = { sold:'Sold', reserved:'Reserved', available:'Released' };
+  feed.innerHTML = items.map(e => `
+    <div class="feed-item fi-${e.status}">
+      <div class="fi-icon">${icons[e.status]||'📋'}</div>
+      <div class="fi-body">
+        <div class="fi-title">Plot #${Number(e.plotId)} <span style="color:#aaa;font-weight:400">→</span> <span class="fi-status st-${e.status}">${labels[e.status]||e.status}</span></div>
+        ${e.buyer?`<div class="fi-sub">👤 ${e.buyer}${e.phone?' &nbsp;·&nbsp; 📞 '+e.phone:''}</div>`:''}
+        <div class="fi-meta">${e.salesperson?'👨‍💼 '+e.salesperson:''}  </div>
+      </div>
+      <div class="fi-time">🕐 ${e.time}</div>
+    </div>`).join('');
+}
+
+// ── MODAL CLOSE ON BACKDROP ───────────────────────────────────────────────
+document.getElementById('detail-modal').addEventListener('click', function(e) { if(e.target===this) closeDetailModal(); });
+document.getElementById('booking-modal').addEventListener('click', function(e) { if(e.target===this) closeBookingModal(); });
+
+// ── AUTO REFRESH ──────────────────────────────────────────────────────────
+setInterval(() => { if (SCRIPT_URL !== 'YOUR_SCRIPT_URL_HERE') loadFromSheet(); }, 120000);
+
+loadFromSheet();
+</script>
+</body>
+</html>
