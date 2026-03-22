@@ -465,6 +465,9 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
         <div style="border-top:1px solid #f0e8e0;margin:8px 0;"></div>
         <div class="detail-row"><span>Additional Charges (per sq.yd)</span><strong id="dm-add">—</strong></div>
         <div class="detail-row"><span>Additional Amount</span><strong id="dm-addamt">—</strong></div>
+        <div style="border-top:1px solid #f0e8e0;margin:8px 0;"></div>
+        <div class="detail-row"><span>Corpus Fund (per sq.yd)</span><strong id="dm-corpus">—</strong></div>
+        <div class="detail-row"><span>Corpus Fund Amount</span><strong id="dm-corpusamt">—</strong></div>
         <div class="price-highlight" style="margin-top:10px;">
           <span>Total Price (Plot Only)</span>
           <strong id="dm-total">—</strong>
@@ -565,6 +568,7 @@ async function loadFromSheet() {
       dims:        r.dims        || '—',
       baseRate:    Number(r.baseRate)  || 0,
       addRate:     Number(r.addRate)   || 0,
+      corpusFund:  Number(r.corpusFund)|| 0,
       total:       Number(r.total)     || 0,
       status:      (r.status || 'available').toLowerCase(),
       buyer:       r.buyer       || '',
@@ -703,10 +707,13 @@ function openDetailModal(id) {
   document.getElementById('dm-facing').textContent  = p.facing || '—';
   document.getElementById('dm-base').textContent    = p.baseRate ? `₹${p.baseRate.toLocaleString('en-IN')} / sq.yd` : '—';
   document.getElementById('dm-add').textContent     = p.addRate  ? `₹${p.addRate.toLocaleString('en-IN')} / sq.yd` : '₹0 / sq.yd';
-  const baseAmt = Math.round(p.baseRate * p.size);
-  const addAmt  = Math.round(p.addRate  * p.size);
-  document.getElementById('dm-baseamt').textContent = baseAmt ? `₹${baseAmt.toLocaleString('en-IN')}` : '—';
-  document.getElementById('dm-addamt').textContent  = addAmt  ? `₹${addAmt.toLocaleString('en-IN')}` : '₹0';
+  document.getElementById('dm-corpus').textContent  = p.corpusFund ? `₹${p.corpusFund.toLocaleString('en-IN')} / sq.yd` : '₹0 / sq.yd';
+  const baseAmt   = Math.round(p.baseRate   * p.size);
+  const addAmt    = Math.round(p.addRate    * p.size);
+  const corpusAmt = Math.round(p.corpusFund * p.size);
+  document.getElementById('dm-baseamt').textContent   = baseAmt   ? `₹${baseAmt.toLocaleString('en-IN')}` : '—';
+  document.getElementById('dm-addamt').textContent    = addAmt    ? `₹${addAmt.toLocaleString('en-IN')}` : '₹0';
+  document.getElementById('dm-corpusamt').textContent = corpusAmt ? `₹${corpusAmt.toLocaleString('en-IN')}` : '₹0';
   document.getElementById('dm-total').textContent   = p.total ? `₹${p.total.toLocaleString('en-IN')}` : '—';
 
   const card = document.getElementById('booking-info-card');
