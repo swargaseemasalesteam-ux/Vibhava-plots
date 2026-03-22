@@ -476,8 +476,6 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
       <div class="booking-info-card" id="booking-info-card" style="display:none">
         <h4>📋 Booking Details</h4>
         <div class="booking-info-row"><span>Buyer</span><strong id="bi-buyer">—</strong></div>
-        <div class="booking-info-row"><span>Phone</span><strong id="bi-phone">—</strong></div>
-        <div class="booking-info-row"><span>Scheme</span><strong id="bi-scheme">—</strong></div>
         <div class="booking-info-row"><span>Sales Person</span><strong id="bi-salesperson">—</strong></div>
       </div>
       <button class="dm-book-btn" id="dm-book-btn" onclick="openBookingModal()">
@@ -717,14 +715,15 @@ function openDetailModal(id) {
   document.getElementById('dm-total').textContent   = p.total ? `₹${p.total.toLocaleString('en-IN')}` : '—';
 
   const card = document.getElementById('booking-info-card');
+  const bookBtn = document.getElementById('dm-book-btn');
   if (isLocked) {
     document.getElementById('bi-buyer').textContent      = p.buyer      || '—';
-    document.getElementById('bi-phone').textContent      = p.phone      || '—';
-    document.getElementById('bi-scheme').textContent     = p.scheme     || '—';
     document.getElementById('bi-salesperson').textContent= p.salesperson|| '—';
     card.style.display = 'block';
+    bookBtn.style.display = 'none';
   } else {
     card.style.display = 'none';
+    bookBtn.style.display = 'flex';
   }
   document.getElementById('detail-modal').classList.add('open');
 }
@@ -893,7 +892,7 @@ function renderUpdatesFeed(filter) {
       <div class="fi-icon">${icons[e.status]||'📋'}</div>
       <div class="fi-body">
         <div class="fi-title">Plot #${Number(e.plotId)} <span style="color:#aaa;font-weight:400">→</span> <span class="fi-status st-${e.status}">${labels[e.status]||e.status}</span></div>
-        ${e.buyer?`<div class="fi-sub">👤 ${e.buyer}${e.phone?' &nbsp;·&nbsp; 📞 '+e.phone:''}</div>`:''}
+        ${e.buyer?`<div class="fi-sub">👤 ${e.buyer}</div>`:''}
         <div class="fi-meta">${e.salesperson?'👨‍💼 '+e.salesperson:''}  </div>
       </div>
       <div class="fi-time">🕐 ${e.time}</div>
