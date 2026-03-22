@@ -383,7 +383,10 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
   </div>
 </div>
 <div class="sc-progress">
-  <label>Sales Progress</label>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <label style="margin-bottom:0;">Sales Progress</label>
+    <span id="progress-pct" style="font-size:12px;font-weight:600;color:#7B1A1A;">0% sold</span>
+  </div>
   <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
 </div>
 
@@ -677,6 +680,7 @@ function updateCounts() {
   document.getElementById('hdr-sold').textContent  = sold;
   const pct = total ? Math.round((sold+res)/total*100) : 0;
   document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '% sold';
 }
 
 // ── FILTER ────────────────────────────────────────────────────────────────
