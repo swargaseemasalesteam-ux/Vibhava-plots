@@ -304,6 +304,14 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
 .btn-save:hover    { opacity: 0.9; }
 .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ── PLAN CARDS ── */
+.plan-card { border: 2px solid #f0e8e0; border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: all 0.15s; background: #fff; }
+.plan-card:hover { border-color: #7B1A1A; background: #fdf8f0; }
+.plan-card.selected { border-color: #7B1A1A; background: #fdf8f0; }
+.plan-card-title { font-size: 13px; font-weight: 700; color: #7B1A1A; }
+.plan-card-desc  { font-size: 11px; color: #888; margin-top: 2px; }
+.plan-card-price { font-size: 13px; font-weight: 700; color: #1a2e1a; margin-top: 4px; }
+
 /* ── TOAST ── */
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #7B1A1A; color: #fff; padding: 12px 24px; border-radius: 24px; font-size: 14px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.2); transition: transform 0.3s ease; z-index: 9999; white-space: nowrap; }
 .toast.show { transform: translateX(-50%) translateY(0); }
@@ -522,12 +530,26 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
       <input class="modal-input" id="modal-phone" type="tel" placeholder="Enter phone number…">
       <label class="modal-label">BOOKING DATE <span style="color:#aaa;font-weight:400;text-transform:none;font-size:11px;">(required)</span></label>
       <input class="modal-input" id="modal-date" type="date">
-      <label class="modal-label">SCHEME</label>
-      <select class="modal-input modal-select" id="modal-scheme">
-        <option value="">— Select Scheme —</option>
-        <option value="1 Month Plan">1 Month Plan</option>
-        <option value="Spot Payment Plan">Spot Payment Plan</option>
-      </select>
+      <label class="modal-label">PAYMENT PLAN <span style="color:#aaa;font-weight:400;text-transform:none;font-size:11px;">(required)</span></label>
+      <div id="plan-loading" style="font-size:12px;color:#aaa;padding:8px 0;">Loading plans…</div>
+      <div id="plan-cards" style="display:none;display:flex;flex-direction:column;gap:8px;"></div>
+      <div id="plan-price-box" style="display:none;background:#fdf8f0;border:1.5px solid #f0e8e0;border-radius:12px;padding:14px 16px;margin-top:10px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:#C8973A;font-weight:700;margin-bottom:10px;">💰 Plan Pricing</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+          <span style="color:#666;">Base Price/sq.yd</span><strong id="pp-base" style="color:#1a2e1a;">—</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+          <span style="color:#666;">Add. Charges/sq.yd</span><strong id="pp-add" style="color:#1a2e1a;">—</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+          <span style="color:#666;">Corpus Fund/sq.yd</span><strong id="pp-corpus" style="color:#1a2e1a;">—</strong>
+        </div>
+        <div style="background:#7B1A1A;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+          <span style="color:#fff;font-size:12px;opacity:0.85;">Total Price</span>
+          <strong id="pp-total" style="color:#fff;font-size:18px;font-family:'Playfair Display',serif;">—</strong>
+        </div>
+        <div id="pp-breakdown" style="margin-top:10px;padding-top:10px;border-top:1px solid #f0e8e0;font-size:12px;color:#888;"></div>
+      </div>
       <label class="modal-label">SALES PERSON NAME <span style="color:#aaa;font-weight:400;text-transform:none;font-size:11px;">(your name)</span></label>
       <select class="modal-input modal-select" id="modal-salesperson-select" onchange="handleSalespersonSelect(this.value)">
         <option value="">— Select Sales Person —</option>
@@ -557,6 +579,8 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzinPPnKeaQ9hQGcWgnB
 let plotDefs      = [];
 let currentFilter = 'all';
 let sizeMin = null;
+let plansCache    = null;   // cached plans from sheet
+let selectedPlan  = null;   // currently selected plan object
 let sizeMax = null;
 let currentPlotId = null;
 let selectedStatus = null;
@@ -760,6 +784,74 @@ function closeDetailModal() {
 }
 
 // ── BOOKING MODAL ─────────────────────────────────────────────────────────
+// ── PLANS ─────────────────────────────────────────────────────────────────
+async function loadPlans() {
+  if (plansCache) return plansCache;
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=getPlans`, { cache: 'no-store' });
+    const data = await res.json();
+    if (Array.isArray(data)) { plansCache = data; return data; }
+  } catch(e) {}
+  // Fallback default plans if fetch fails
+  return [
+    { name: '7 Days Plan',                    baseRate: null, addRate: null, corpusRate: null, desc: 'Full payment within 7 days' },
+    { name: '25% + 30 Days Plan',             baseRate: null, addRate: null, corpusRate: null, desc: '25% allotment amount + 30 days timeline' },
+    { name: '25% + 60 Days Plan',             baseRate: null, addRate: null, corpusRate: null, desc: '25% allotment amount + 60 days timeline' },
+    { name: '25% + 90 Days Plan',             baseRate: null, addRate: null, corpusRate: null, desc: '25% allotment amount + 90 days timeline' },
+  ];
+}
+
+async function renderPlanCards() {
+  const p = getPlotDef(currentPlotId);
+  if (!p) return;
+  document.getElementById('plan-loading').style.display = 'block';
+  document.getElementById('plan-cards').style.display   = 'none';
+  const plans = await loadPlans();
+  document.getElementById('plan-loading').style.display = 'none';
+  const container = document.getElementById('plan-cards');
+  container.style.display = 'flex';
+  container.innerHTML = plans.map((plan, i) => {
+    const base   = plan.baseRate   || p.baseRate;
+    const add    = plan.addRate    !== null ? plan.addRate    : p.addRate;
+    const corpus = plan.corpusRate !== null ? plan.corpusRate : p.corpusFund;
+    const total  = Math.round(parseFloat(p.size) * (base + add + corpus));
+    return `<div class="plan-card" onclick="selectPlan(${i})" id="plan-card-${i}">
+      <div class="plan-card-title">${plan.name}</div>
+      <div class="plan-card-desc">${plan.desc || ''}</div>
+      <div class="plan-card-price">₹${total.toLocaleString('en-IN')}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectPlan(idx) {
+  const p = getPlotDef(currentPlotId);
+  if (!p || !plansCache) return;
+  selectedPlan = plansCache[idx];
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('plan-card-' + idx).classList.add('selected');
+
+  const base   = selectedPlan.baseRate   || p.baseRate;
+  const add    = selectedPlan.addRate    !== null ? selectedPlan.addRate    : p.addRate;
+  const corpus = selectedPlan.corpusRate !== null ? selectedPlan.corpusRate : p.corpusFund;
+  const total  = Math.round(parseFloat(p.size) * (base + add + corpus));
+
+  document.getElementById('pp-base').textContent   = `₹${base.toLocaleString('en-IN')} / sq.yd`;
+  document.getElementById('pp-add').textContent    = `₹${add.toLocaleString('en-IN')} / sq.yd`;
+  document.getElementById('pp-corpus').textContent = `₹${corpus.toLocaleString('en-IN')} / sq.yd`;
+  document.getElementById('pp-total').textContent  = `₹${total.toLocaleString('en-IN')}`;
+
+  // Show instalment breakdown if plan has percentage
+  const box = document.getElementById('pp-breakdown');
+  if (selectedPlan.pct25) {
+    const now  = Math.round(total * 0.25);
+    const later = total - now;
+    box.innerHTML = `<span style="color:#7B1A1A;font-weight:700;">25% Now:</span> ₹${now.toLocaleString('en-IN')} &nbsp;|&nbsp; <span style="color:#7B1A1A;font-weight:700;">Balance:</span> ₹${later.toLocaleString('en-IN')}`;
+  } else {
+    box.innerHTML = `<span style="color:#7B1A1A;font-weight:700;">Full Payment:</span> ₹${total.toLocaleString('en-IN')}`;
+  }
+  document.getElementById('plan-price-box').style.display = 'block';
+}
+
 function openBookingModal() {
   const p = getPlotDef(currentPlotId);
   if (!p) return;
@@ -770,13 +862,16 @@ function openBookingModal() {
   document.getElementById('modal-buyer').value  = '';
   document.getElementById('modal-phone').value  = '';
   document.getElementById('modal-date').value   = new Date().toISOString().split('T')[0];
-  document.getElementById('modal-scheme').value = '';
+  selectedPlan = null;
+  document.getElementById('plan-price-box').style.display = 'none';
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
   document.getElementById('modal-salesperson-select').value = '';
   document.getElementById('modal-salesperson').value = '';
   document.getElementById('modal-salesperson').style.display = 'none';
   document.getElementById('btn-save').disabled    = false;
   document.getElementById('btn-save').textContent = 'Save';
   document.getElementById('booking-modal').classList.add('open');
+  renderPlanCards();
 }
 
 function closeBookingModal() { document.getElementById('booking-modal').classList.remove('open'); }
@@ -800,7 +895,7 @@ async function saveStatus() {
   const buyer       = document.getElementById('modal-buyer').value.trim();
   const phone       = document.getElementById('modal-phone').value.trim();
   const bookingDate = document.getElementById('modal-date').value;
-  const scheme      = document.getElementById('modal-scheme').value;
+  const scheme      = selectedPlan ? selectedPlan.name : '';
   const spSelect    = document.getElementById('modal-salesperson-select').value;
   const salesperson = (spSelect === '__other__' || spSelect === '')
     ? document.getElementById('modal-salesperson').value.trim()
