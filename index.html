@@ -7,31 +7,30 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', sans-serif; background: #fdf8f0; color: #1a2e1a; min-height: 100vh; }
+body { font-family: 'DM Sans', sans-serif; background: #f8fafc; color: #0f172a; min-height: 100vh; }
 
 /* ── HEADER ── */
-header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding: 0 24px; display: flex; justify-content: space-between; align-items: center; height: 64px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 16px rgba(0,0,0,0.3); }
+header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding: 0 24px; display: flex; justify-content: space-between; align-items: center; height: 64px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
 .header-logo { display: flex; align-items: center; gap: 12px; }
-.header-logo img { height: 42px; }
 .header-logo-text { color: #fff; font-family: 'Playfair Display', serif; font-size: 20px; letter-spacing: 0.3px; }
 .header-logo-text span { color: #C8973A; }
-.header-right { display: flex; align-items: center; gap: 14px; }
-.header-stats { display: flex; gap: 8px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.header-stats { display: flex; gap: 6px; }
 .stat-pill { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.12); padding: 4px 10px; border-radius: 14px; color: #fff; font-size: 11px; font-weight: 600; }
 .stat-dot { width: 7px; height: 7px; border-radius: 50%; }
 .dot-available { background: #4ade80; }
 .dot-reserved  { background: #facc15; }
 .dot-sold      { background: #f87171; }
-.sync-badge { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 20px; color: #fff; font-size: 12px; font-weight: 500; cursor: pointer; border: none; transition: background 0.2s; }
+.sync-badge { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; border: none; transition: background 0.2s; }
 .sync-badge:hover { background: rgba(255,255,255,0.25); }
 .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #e8a87c; display: inline-block; }
 .sync-dot.syncing { background: #facc15; animation: pulse 1s infinite; }
 .sync-dot.err     { background: #f87171; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-/* ── UPDATES BTN ── */
-.updates-btn { position: relative; display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 5px 13px; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; transition: background 0.2s; }
-.updates-btn:hover { background: rgba(255,255,255,0.28); }
+/* ── ACTION BUTTONS ── */
+.updates-btn, .action-btn { position: relative; display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 6px 13px; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; transition: all 0.2s; }
+.updates-btn:hover, .action-btn:hover { background: rgba(255,255,255,0.28); transform: translateY(-1px); }
 .updates-count { background: #e74c3c; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; display: none; animation: badgePulse 2s infinite; }
 .updates-count.show { display: inline-block; }
 @keyframes badgePulse { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.5)} 60%{box-shadow:0 0 0 5px rgba(231,76,60,0)} }
@@ -83,80 +82,97 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
 #setup-banner { display: none; background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 10px 20px; font-size: 13px; gap: 8px; align-items: center; }
 
 /* ── SUMMARY CARDS ── */
-.summary-row { display: grid; grid-template-columns: repeat(5,1fr); gap: 16px; padding: 20px 24px 0; }
-.summary-card { background: #fff; border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); border: 1px solid #f0e8e0; display: flex; justify-content: space-between; align-items: center; }
-.sc-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; margin-bottom: 4px; }
-.sc-value { font-size: 32px; font-weight: 700; font-family: 'Playfair Display', serif; color: #7B1A1A; }
-.sc-icon { font-size: 32px; opacity: 0.7; }
+.summary-row { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; padding: 18px 24px 0; }
+.summary-card { background: #fff; border-radius: 12px; padding: 16px 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.sc-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin-bottom: 4px; font-weight: 600; }
+.sc-value { font-size: 28px; font-weight: 700; font-family: 'Playfair Display', serif; color: #7B1A1A; }
+.sc-icon { font-size: 28px; opacity: 0.75; }
 .sc-available .sc-value { color: #16a34a; }
 .sc-reserved  .sc-value { color: #d97706; }
 .sc-sold      .sc-value { color: #dc2626; }
-.sc-mortgage  .sc-value { color: #7B1A1A; }
-.sc-progress { margin: 0 24px; background: #fff; border-radius: 14px; padding: 14px 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); border: 1px solid #f0e8e0; margin-top: 12px; }
-.sc-progress label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; display: block; margin-bottom: 8px; }
-.progress-bar { background: #f0e8e0; border-radius: 8px; height: 10px; overflow: hidden; }
+.sc-mortgage  .sc-value { color: #4338ca; }
+.sc-progress { margin: 0 24px; background: #fff; border-radius: 12px; padding: 12px 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; margin-top: 12px; }
+.sc-progress label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: 600; }
+.progress-bar { background: #f1f5f9; border-radius: 8px; height: 10px; overflow: hidden; }
 .progress-fill { height: 100%; background: linear-gradient(90deg,#7B1A1A,#c0392b); border-radius: 8px; transition: width 0.6s ease; }
 
-/* ── CONTROLS ── */
-.controls { padding: 16px 24px 8px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.filter-btn { padding: 6px 16px; border-radius: 20px; border: 1.5px solid #e0d0d0; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; color: #555; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+/* ── CONTROLS & EXPORT BAR ── */
+.controls { padding: 14px 24px 6px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.filter-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #cbd5e1; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; color: #475569; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
 .filter-btn:hover  { border-color: #7B1A1A; color: #7B1A1A; }
 .filter-btn.active { background: #7B1A1A; color: #fff; border-color: #7B1A1A; }
-.filter-btn.available.active { background: #27ae60; border-color: #27ae60; }
+.filter-btn.available.active { background: #16a34a; border-color: #16a34a; }
 .filter-btn.reserved.active  { background: #d97706; border-color: #d97706; }
 .filter-btn.sold.active      { background: #dc2626; border-color: #dc2626; }
 .filter-btn.mortgage.active   { background: #4338ca; border-color: #4338ca; }
-.search-box { flex: 1; min-width: 180px; max-width: 280px; }
-.search-box input { width: 100%; padding: 7px 14px; border-radius: 20px; border: 1.5px solid #e0d0d0; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border 0.2s; }
+.search-box { flex: 1; min-width: 180px; max-width: 260px; }
+.search-box input { width: 100%; padding: 7px 14px; border-radius: 20px; border: 1.5px solid #cbd5e1; font-family: 'DM Sans', sans-serif; font-size: 12px; outline: none; transition: border 0.2s; }
 .search-box input:focus { border-color: #7B1A1A; }
-.plot-count { font-size: 12px; color: #888; margin-left: auto; }
+.tool-btn-group { display: flex; gap: 6px; margin-left: auto; }
+.tool-btn { padding: 6px 13px; border-radius: 18px; border: 1.5px solid #cbd5e1; background: #fff; color: #334155; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+.tool-btn:hover { border-color: #7B1A1A; color: #7B1A1A; background: #fdf8f0; }
 
-/* ── SIZE FILTER ── */
-.size-filter-bar { padding: 0 24px 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.size-filter-label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
+/* ── SIZE FILTER BAR ── */
+.size-filter-bar { padding: 0 24px 8px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.size-filter-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
 .size-presets { display: flex; gap: 5px; flex-wrap: wrap; }
-.size-preset-btn { padding: 4px 11px; border-radius: 14px; border: 1.5px solid #e0d0d0; background: #fff; font-size: 11px; font-weight: 600; cursor: pointer; color: #666; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
-.size-preset-btn:hover { border-color: #7B1A1A; color: #7B1A1A; }
-.size-preset-btn.active { background: #7B1A1A; color: #fff; border-color: #7B1A1A; }
+.size-preset-btn, .budget-preset-btn { padding: 4px 11px; border-radius: 14px; border: 1.5px solid #cbd5e1; background: #fff; font-size: 11px; font-weight: 600; cursor: pointer; color: #475569; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+.size-preset-btn:hover, .budget-preset-btn:hover { border-color: #7B1A1A; color: #7B1A1A; }
+.size-preset-btn.active, .budget-preset-btn.active { background: #7B1A1A; color: #fff; border-color: #7B1A1A; }
 .size-custom { display: flex; align-items: center; gap: 5px; margin-left: 4px; }
-.size-custom input { width: 72px; padding: 4px 8px; border-radius: 10px; border: 1.5px solid #e0d0d0; font-family: 'DM Sans', sans-serif; font-size: 12px; outline: none; text-align: center; transition: border 0.2s; }
+.size-custom input { width: 72px; padding: 4px 8px; border-radius: 10px; border: 1.5px solid #cbd5e1; font-family: 'DM Sans', sans-serif; font-size: 12px; outline: none; text-align: center; transition: border 0.2s; }
 .size-custom input:focus { border-color: #7B1A1A; }
-.size-custom span { font-size: 11px; color: #aaa; }
+.size-custom span { font-size: 11px; color: #94a3b8; }
 .size-clear { padding: 4px 10px; border-radius: 14px; border: none; background: #fee2e2; color: #991b1b; font-size: 11px; font-weight: 600; cursor: pointer; display: none; font-family: 'DM Sans', sans-serif; }
 .size-clear.show { display: inline-block; }
-@media (max-width: 600px) {
-  .size-filter-bar { padding: 0 10px 8px; gap: 6px; }
-  .size-custom input { width: 60px; font-size: 11px; }
-  .size-preset-btn { font-size: 10px; padding: 3px 8px; }
-}
 
-/* ── GRID ── */
-.grid-section { padding: 8px 24px 32px; }
-.plot-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(88px,1fr)); gap: 8px; }
+/* ── GRID SECTION ── */
+.grid-section { padding: 4px 24px 32px; }
+.grid-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.grid-title-text { font-size: 13px; font-weight: 700; color: #334155; }
+.plot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px; }
 
-/* ── PLOT CARD ── */
-.plot-card { background: #fff; border-radius: 10px; padding: 10px 8px 8px; border: 1.5px solid #f0e8e0; cursor: pointer; transition: all 0.15s; position: relative; }
-.plot-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); border-color: #7B1A1A; }
-.plot-card.status-sold      { background: #fff0f0; border-color: #fbb; }
-.plot-card.status-reserved  { background: #fffbf0; border-color: #fde68a; }
+/* ── COMPACT HIGH-DENSITY PLOT CARD ── */
+.plot-card { background: #fff; border-radius: 8px; padding: 8px 7px 6px; border: 1.5px solid #e2e8f0; cursor: pointer; transition: all 0.15s; position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 82px; }
+.plot-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.1); border-color: #7B1A1A; z-index: 10; }
+.plot-card.status-sold      { background: #fef2f2; border-color: #fca5a5; }
+.plot-card.status-reserved  { background: #fffbeb; border-color: #fde68a; }
 .plot-card.status-available { background: #f0fdf4; border-color: #bbf7d0; }
-.plot-card.status-mortgage  { background: #f0f0ff; border-color: #a5b4fc; }
-.pc-num  { font-size: 15px; font-weight: 700; font-family: 'Playfair Display', serif; color: #7B1A1A; }
-.pc-size { font-size: 10px; color: #888; margin-top: 1px; }
-.pc-badge { margin-top: 6px; padding: 2px 7px; border-radius: 8px; font-size: 10px; font-weight: 700; text-align: center; text-transform: uppercase; letter-spacing: 0.3px; }
+.plot-card.status-mortgage  { background: #eeef2f5; border-color: #c7d2fe; }
+
+.pc-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.pc-num { font-size: 14px; font-weight: 700; font-family: 'Playfair Display', serif; color: #7B1A1A; line-height: 1.1; }
+.pc-corner { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.corner-available { background: #16a34a; }
+.corner-reserved  { background: #d97706; }
+.corner-sold      { background: #dc2626; }
+.corner-mortgage { background: #4338ca; }
+
+.pc-mid { margin-top: 3px; }
+.pc-size { font-size: 10px; font-weight: 600; color: #475569; }
+.pc-facing { font-size: 9px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; margin-top: 1px; }
+
+.pc-bottom { margin-top: 5px; display: flex; justify-content: space-between; align-items: center; gap: 2px; }
+.pc-price-chip { font-size: 9px; font-weight: 700; color: #1e293b; background: rgba(0,0,0,0.04); padding: 1px 4px; border-radius: 4px; }
+.pc-badge { padding: 1px 5px; border-radius: 6px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2px; text-align: center; }
 .badge-available { background: #dcfce7; color: #15803d; }
 .badge-reserved  { background: #fef3c7; color: #92400e; }
 .badge-sold      { background: #fee2e2; color: #991b1b; }
 .badge-mortgage  { background: #e0e7ff; color: #3730a3; }
-.pc-corner { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; }
-.corner-available { background: #e8a87c; }
-.corner-reserved  { background: #facc15; }
-.corner-sold      { background: #f87171; }
-.corner-mortgage { background: #6366f1; }
+
+/* ── HOVER QUICK PREVIEW TOOLTIP ── */
+#plot-tooltip { position: fixed; display: none; background: #0f172a; color: #fff; padding: 12px 14px; border-radius: 12px; font-size: 11px; z-index: 1000; pointer-events: none; box-shadow: 0 10px 25px rgba(0,0,0,0.3); min-width: 200px; border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(4px); }
+#plot-tooltip.show { display: block; }
+.tt-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 6px; margin-bottom: 6px; }
+.tt-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: #fde047; }
+.tt-badge { padding: 2px 6px; border-radius: 6px; font-size: 9px; font-weight: 700; text-transform: uppercase; }
+.tt-row { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; color: #cbd5e1; }
+.tt-row strong { color: #fff; }
+.tt-price { font-size: 13px; font-weight: 700; color: #4ade80; margin-top: 6px; padding-top: 5px; border-top: 1px dashed rgba(255,255,255,0.2); display: flex; justify-content: space-between; }
 
 /* ── LEGEND ── */
-.legend { display: flex; gap: 14px; padding: 0 24px 8px; font-size: 12px; color: #666; }
-.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend { display: flex; gap: 14px; padding: 0 24px 8px; font-size: 12px; color: #64748b; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-weight: 500; }
 .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
 /* ── ERROR STATE BOX ── */
@@ -172,18 +188,18 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
   .header-logo-text { font-size: 17px; }
   .header-stats { gap: 5px; }
   .stat-pill { font-size: 10px; padding: 3px 7px; }
-  .updates-btn { font-size: 11px; padding: 4px 10px; }
+  .updates-btn, .action-btn { font-size: 11px; padding: 4px 10px; }
   .sync-badge { font-size: 11px; padding: 4px 9px; }
   .summary-row { grid-template-columns: repeat(3,1fr); gap: 10px; padding: 14px 14px 0; }
   .summary-card { padding: 14px 14px; }
-  .sc-value { font-size: 26px; }
+  .sc-value { font-size: 24px; }
   .sc-progress { margin: 10px 14px 0; padding: 12px 14px; }
   .controls { padding: 12px 14px 6px; gap: 7px; }
   .filter-btn { padding: 5px 12px; font-size: 12px; }
   .search-box { min-width: 140px; }
   .legend { padding: 0 14px 8px; }
   .grid-section { padding: 6px 14px 24px; }
-  .plot-grid { grid-template-columns: repeat(auto-fill,minmax(80px,1fr)); gap: 7px; }
+  .plot-grid { grid-template-columns: repeat(auto-fill,minmax(85px,1fr)); gap: 6px; }
 }
 
 @media (max-width: 600px) {
@@ -193,7 +209,7 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
   .header-stats { gap: 4px; }
   .stat-pill { font-size: 10px; padding: 2px 6px; gap: 3px; }
   .stat-dot { width: 6px; height: 6px; }
-  .updates-btn { padding: 4px 8px; font-size: 11px; }
+  .updates-btn, .action-btn { padding: 4px 8px; font-size: 11px; }
   .sync-badge { padding: 4px 8px; font-size: 11px; }
   .sync-badge span:last-child { display: none; }
   .summary-row { grid-template-columns: repeat(2,1fr); gap: 8px; padding: 10px 10px 0; }
@@ -207,38 +223,39 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
   .filter-btn { padding: 5px 10px; font-size: 11px; border-radius: 16px; }
   .search-box { width: 100%; min-width: unset; max-width: unset; order: 5; }
   .search-box input { font-size: 13px; padding: 8px 14px; }
-  .plot-count { order: 6; width: 100%; text-align: right; font-size: 11px; }
+  .tool-btn-group { order: 6; width: 100%; justify-content: flex-end; }
   .legend { padding: 0 10px 6px; font-size: 11px; gap: 10px; }
   .grid-section { padding: 4px 10px 24px; }
-  .plot-grid { grid-template-columns: repeat(4,1fr); gap: 6px; }
-  .plot-card { padding: 7px 5px 6px; border-radius: 8px; }
+  .plot-grid { grid-template-columns: repeat(4,1fr); gap: 5px; }
+  .plot-card { padding: 6px 5px 5px; min-height: 76px; }
   .pc-num { font-size: 12px; }
   .pc-size { font-size: 9px; }
-  .pc-badge { font-size: 8px; padding: 2px 4px; margin-top: 4px; }
-  .pc-corner { width: 6px; height: 6px; top: 4px; right: 4px; }
+  .pc-price-chip { font-size: 8px; }
+  .pc-badge { font-size: 7px; padding: 1px 3px; }
   .updates-panel { width: 100%; }
   .modal-overlay { align-items: flex-end; }
   .modal-box { width: 100%; max-width: 100%; border-radius: 18px 18px 0 0; max-height: 92vh; }
   .modal-header { padding: 16px 16px 12px; border-radius: 18px 18px 0 0; }
   .modal-header h2 { font-size: 18px; }
   .modal-body { padding: 14px 16px 20px; }
-  .detail-section { padding: 12px; }
-  .modal-actions { gap: 8px; }
 }
 
-@media (max-width: 380px) {
-  .plot-grid { grid-template-columns: repeat(3,1fr); gap: 5px; }
-  .pc-num { font-size: 11px; }
-  header { padding: 6px 10px; }
-  .header-stats { display: none; }
+/* ── PRINT STYLING ── */
+@media print {
+  header, .controls, .size-filter-bar, .updates-btn, .sync-badge, .tool-btn-group, #loading-overlay, .modal-overlay, #plot-tooltip { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .summary-row { grid-template-columns: repeat(5,1fr) !important; padding: 0 !important; }
+  .summary-card { border: 1px solid #ccc !important; box-shadow: none !important; }
+  .plot-grid { grid-template-columns: repeat(6, 1fr) !important; gap: 6px !important; }
+  .plot-card { border: 1px solid #aaa !important; background: #fff !important; break-inside: avoid; }
 }
 
 /* ── LOADING ── */
-#loading-overlay { position: fixed; inset: 0; background: rgba(240,250,244,0.92); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; gap: 16px; }
+#loading-overlay { position: fixed; inset: 0; background: rgba(248,250,252,0.92); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; gap: 16px; }
 #loading-overlay.hidden { display: none; }
-.loading-spinner { width: 44px; height: 44px; border: 4px solid #f0e8e0; border-top-color: #7B1A1A; border-radius: 50%; animation: spin 0.8s linear infinite; }
+.loading-spinner { width: 44px; height: 44px; border: 4px solid #cbd5e1; border-top-color: #7B1A1A; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-text { font-size: 14px; color: #555; font-weight: 500; }
+.loading-text { font-size: 14px; color: #475569; font-weight: 600; }
 
 /* ── MODALS ── */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 800; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
@@ -304,6 +321,19 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
   ⚠️ <strong>Setup required:</strong> Replace <code>YOUR_SCRIPT_URL_HERE</code> with your Google Apps Script Web App URL.
 </div>
 
+<!-- HOVER QUICK PREVIEW TOOLTIP -->
+<div id="plot-tooltip">
+  <div class="tt-head">
+    <div class="tt-title" id="tt-plotnum">Plot #—</div>
+    <div class="tt-badge" id="tt-badge">—</div>
+  </div>
+  <div class="tt-row"><span>Size:</span><strong id="tt-size">—</strong></div>
+  <div class="tt-row"><span>Facing:</span><strong id="tt-facing">—</strong></div>
+  <div class="tt-row"><span>Dimensions:</span><strong id="tt-dims">—</strong></div>
+  <div class="tt-row" id="tt-buyer-row" style="display:none;"><span>Buyer:</span><strong id="tt-buyer">—</strong></div>
+  <div class="tt-price"><span>Total Price:</span><strong id="tt-price">—</strong></div>
+</div>
+
 <header>
   <div class="header-logo">
     <div class="header-logo-text">Swargaseema's <span>Vibhava</span></div>
@@ -316,7 +346,7 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
       <div class="stat-pill"><span class="stat-dot" style="background:#6366f1"></span><span id="hdr-mort">0</span> Mortgage</div>
     </div>
     <button class="updates-btn" onclick="toggleUpdatesPanel()" title="Today's Updates">
-      📋 Today's Updates
+      📋 Updates
       <span class="updates-count" id="updates-count">0</span>
     </button>
     <button class="sync-badge" onclick="loadFromSheet()" title="Refresh">
@@ -396,7 +426,7 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
   <button class="filter-btn sold"              onclick="setFilter('sold',this)">Sold</button>
   <button class="filter-btn mortgage"          onclick="setFilter('mortgage',this)">🏦 Mortgage</button>
   <div class="search-box"><input type="text" placeholder="🔍  Search plot number…" oninput="renderGrid()"></div>
-  <span class="plot-count" id="plot-count"></span>
+
 </div>
 
 <!-- SIZE FILTER -->
@@ -417,17 +447,38 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
   <button class="size-clear" id="size-clear" onclick="clearSizeFilter()">✕ Clear</button>
 </div>
 
+<!-- BUDGET FILTER -->
+<div class="size-filter-bar" style="padding-top:0;">
+  <span class="size-filter-label">💰 Budget:</span>
+  <div class="size-presets">
+    <button class="budget-preset-btn" onclick="setBudgetPreset(0,20,this)">Under 20L</button>
+    <button class="budget-preset-btn" onclick="setBudgetPreset(20,25,this)">20L–25L</button>
+    <button class="budget-preset-btn" onclick="setBudgetPreset(25,30,this)">25L–30L</button>
+    <button class="budget-preset-btn" onclick="setBudgetPreset(30,1000,this)">30L+</button>
+  </div>
+  <div class="size-custom">
+    <input type="number" id="budget-min" placeholder="Min L" min="0" step="0.5" oninput="onCustomBudgetInput()">
+    <span>–</span>
+    <input type="number" id="budget-max" placeholder="Max L" min="0" step="0.5" oninput="onCustomBudgetInput()">
+    <span style="font-size:11px;color:#aaa;">Lakhs</span>
+  </div>
+  <button class="size-clear" id="budget-clear" onclick="clearBudgetFilter()">✕ Clear</button>
+</div>
+
 <!-- LEGEND -->
 <div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#e8a87c"></div> Available</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#facc15"></div> Reserved</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div> Sold</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div> Mortgage</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div> Available</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#d97706"></div> Reserved</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> Sold</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4338ca"></div> Mortgage</div>
 </div>
 
 <!-- PLOT GRID -->
 <div class="grid-section">
-  <div class="plot-count" id="grid-label" style="font-size:13px;color:#555;font-weight:600;margin-bottom:10px;"></div>
+  <div class="grid-header-row">
+    <div class="grid-title-text" id="grid-label">Vibhava Plots Grid</div>
+    <div class="plot-count" id="plot-count" style="font-size:12px;color:#64748b;"></div>
+  </div>
   <div class="plot-grid" id="plot-grid"></div>
 </div>
 
@@ -566,6 +617,8 @@ let plotDefs      = [];
 let currentFilter = 'all';
 let sizeMin       = null;
 let sizeMax       = null;
+let budgetMin     = null;
+let budgetMax     = null;
 let plansCache    = null;
 let selectedPlan  = null;
 let currentPlotId = null;
@@ -659,7 +712,24 @@ async function saveToSheet(plotId, status, buyer, phone, bookingDate, scheme, sa
   return data;
 }
 
-// ── RENDER GRID ───────────────────────────────────────────────────────────
+// ── UTILITY FORMATTERS ───────────────────────────────────────────────────
+function formatShortPrice(total) {
+  if (!total) return '—';
+  if (total >= 10000000) return `₹${(total/10000000).toFixed(2)} Cr`;
+  if (total >= 100000) return `₹${(total/100000).toFixed(2)} L`;
+  return `₹${total.toLocaleString('en-IN')}`;
+}
+
+function getShortFacing(facing) {
+  if (!facing || facing === '—') return '—';
+  if (facing.includes('E/F') || facing.toLowerCase().includes('east')) return 'East';
+  if (facing.includes('W/F') || facing.toLowerCase().includes('west')) return 'West';
+  if (facing.includes('N/F') || facing.toLowerCase().includes('north')) return 'North';
+  if (facing.includes('S/F') || facing.toLowerCase().includes('south')) return 'South';
+  return facing;
+}
+
+// ── RENDER GRID (HIGH-DENSITY VIEW WITH PRICE CHIPS & TOOLTIPS) ───────────
 function renderGrid() {
   const query = document.querySelector('.search-box input').value.trim().toLowerCase();
   let plots = plotDefs;
@@ -668,18 +738,124 @@ function renderGrid() {
   if (query) plots = plots.filter(p => p.id.includes(query));
   if (sizeMin !== null) plots = plots.filter(p => parseFloat(p.size) >= sizeMin);
   if (sizeMax !== null) plots = plots.filter(p => parseFloat(p.size) <= sizeMax);
+  if (budgetMin !== null) plots = plots.filter(p => p.total >= budgetMin * 100000);
+  if (budgetMax !== null) plots = plots.filter(p => p.total <= budgetMax * 100000);
 
   document.getElementById('plot-count').textContent = `${plots.length} plots`;
-  document.getElementById('grid-label').textContent = `Vibhava — ${plots.length} plots shown`;
+  document.getElementById('grid-label').textContent = `Vibhava Grid — ${plots.length} plots shown`;
 
   const grid = document.getElementById('plot-grid');
   grid.innerHTML = plots.map(p => `
-    <div class="plot-card status-${p.status}" onclick="openDetailModal('${p.id}')">
-      <div class="pc-corner corner-${p.status}"></div>
-      <div class="pc-num">${p.id}</div>
-      <div class="pc-size">${p.size} sq.yds</div>
-      <div class="pc-badge badge-${p.status}">${p.status}</div>
+    <div class="plot-card status-${p.status}" 
+         onclick="openDetailModal('${p.id}')"
+         onmouseenter="showTooltip(event, '${p.id}')"
+         onmousemove="moveTooltip(event)"
+         onmouseleave="hideTooltip()">
+      <div class="pc-top">
+        <div class="pc-num">#${p.id}</div>
+        <div class="pc-corner corner-${p.status}"></div>
+      </div>
+      <div class="pc-mid">
+        <div class="pc-size">${p.size} sq.yds</div>
+        <div class="pc-facing" title="${p.facing}">${getShortFacing(p.facing)}</div>
+      </div>
+      <div class="pc-bottom">
+        <div class="pc-price-chip">${formatShortPrice(p.total)}</div>
+        <div class="pc-badge badge-${p.status}">${p.status.substr(0,4)}</div>
+      </div>
     </div>`).join('');
+}
+
+// ── HOVER QUICK PREVIEW TOOLTIP LOGIC ──────────────────────────────────────
+function showTooltip(e, id) {
+  const p = getPlotDef(id);
+  if (!p) return;
+  const tt = document.getElementById('plot-tooltip');
+  
+  document.getElementById('tt-plotnum').textContent = `Plot #${p.id}`;
+  const badge = document.getElementById('tt-badge');
+  badge.textContent = p.status.toUpperCase();
+  badge.className = `tt-badge badge-${p.status}`;
+  
+  document.getElementById('tt-size').textContent   = `${p.size} sq.yds`;
+  document.getElementById('tt-facing').textContent = p.facing || '—';
+  document.getElementById('tt-dims').textContent   = p.dims || '—';
+  document.getElementById('tt-price').innerHTML  = `<span>Total Price:</span><strong>${p.total ? '₹' + p.total.toLocaleString('en-IN') : '—'}</strong>`;
+
+  const buyerRow = document.getElementById('tt-buyer-row');
+  if (p.buyer && p.status !== 'available') {
+    document.getElementById('tt-buyer').textContent = p.buyer;
+    buyerRow.style.display = 'flex';
+  } else {
+    buyerRow.style.display = 'none';
+  }
+
+  tt.classList.add('show');
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  const tt = document.getElementById('plot-tooltip');
+  if (!tt.classList.contains('show')) return;
+  const x = e.clientX + 14;
+  const y = e.clientY + 14;
+  const windowWidth = window.innerWidth;
+  const windowHeight = window.innerHeight;
+  const ttWidth = tt.offsetWidth;
+  const ttHeight = tt.offsetHeight;
+
+  let leftPos = x;
+  let topPos = y;
+
+  if (x + ttWidth > windowWidth - 10) leftPos = e.clientX - ttWidth - 10;
+  if (y + ttHeight > windowHeight - 10) topPos = e.clientY - ttHeight - 10;
+
+  tt.style.left = leftPos + 'px';
+  tt.style.top  = topPos + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('plot-tooltip').classList.remove('show');
+}
+
+// ── EXPORT CSV & PRINT SUMMARY REPORT ─────────────────────────────────────
+function exportToCSV() {
+  if (!plotDefs || !plotDefs.length) { showToast('No plot data to export', 'error'); return; }
+  const headers = ['Plot ID', 'Size (sq.yds)', 'Facing', 'Dimensions', 'Base Rate (per sq.yd)', 'Add. Charges', 'Corpus Fund', 'Total Price', 'Status', 'Buyer Name', 'Phone', 'Salesperson', 'Payment Scheme'];
+  
+  const csvRows = [headers.join(',')];
+  plotDefs.forEach(p => {
+    const row = [
+      `"${p.id}"`,
+      `"${p.size}"`,
+      `"${(p.facing || '').replace(/"/g, '""')}"`,
+      `"${(p.dims || '').replace(/"/g, '""')}"`,
+      p.baseRate,
+      p.addRate,
+      p.corpusFund,
+      p.total,
+      `"${p.status.toUpperCase()}"`,
+      `"${(p.buyer || '').replace(/"/g, '""')}"`,
+      `"${p.phone || ''}"`,
+      `"${(p.salesperson || '').replace(/"/g, '""')}"`,
+      `"${(p.scheme || '').replace(/"/g, '""')}"`
+    ];
+    csvRows.push(row.join(','));
+  });
+
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `Vibhava_Plots_Inventory_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('📊 Exported CSV inventory report!', 'success');
+}
+
+function printReport() {
+  window.print();
 }
 
 // ── SIZE FILTER ────────────────────────────────────────────────────────────
@@ -718,6 +894,42 @@ function clearSizeFilter() {
   renderGrid();
 }
 
+// ── BUDGET FILTER HANDLERS ──────────────────────────────────────────────────
+function setBudgetPreset(min, max, btn) {
+  if (btn.classList.contains('active')) {
+    clearBudgetFilter();
+    return;
+  }
+  budgetMin = min === 0 ? null : min;
+  budgetMax = max >= 1000 ? null : max;
+  document.getElementById('budget-min').value = min === 0 ? '' : min;
+  document.getElementById('budget-max').value = max >= 1000 ? '' : max;
+  document.querySelectorAll('.budget-preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('budget-clear').classList.add('show');
+  renderGrid();
+}
+
+function onCustomBudgetInput() {
+  const minVal = document.getElementById('budget-min').value;
+  const maxVal = document.getElementById('budget-max').value;
+  budgetMin = minVal !== '' ? parseFloat(minVal) : null;
+  budgetMax = maxVal !== '' ? parseFloat(maxVal) : null;
+  document.querySelectorAll('.budget-preset-btn').forEach(b => b.classList.remove('active'));
+  const hasBudgetFilter = budgetMin !== null || budgetMax !== null;
+  document.getElementById('budget-clear').classList.toggle('show', hasBudgetFilter);
+  renderGrid();
+}
+
+function clearBudgetFilter() {
+  budgetMin = null; budgetMax = null;
+  document.getElementById('budget-min').value = '';
+  document.getElementById('budget-max').value = '';
+  document.querySelectorAll('.budget-preset-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('budget-clear').classList.remove('show');
+  renderGrid();
+}
+
 function updateCounts() {
   const avail = plotDefs.filter(p => p.status==='available').length;
   const res   = plotDefs.filter(p => p.status==='reserved').length;
@@ -750,6 +962,7 @@ function setFilter(f, btn) {
 function getPlotDef(id) { return plotDefs.find(p => p.id === String(id)); }
 
 function openDetailModal(id) {
+  hideTooltip();
   const p = getPlotDef(id);
   if (!p) return;
   currentPlotId = id;
