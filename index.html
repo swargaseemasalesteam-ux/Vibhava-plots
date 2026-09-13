@@ -132,17 +132,17 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
 .grid-section { padding: 4px 24px 32px; width: 100%; box-sizing: border-box; }
 .grid-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .grid-title-text { font-size: 13px; font-weight: 700; color: #334155; }
-.plot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px; width: 100%; }
+.plot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px; width: 100%; box-sizing: border-box; }
 
 /* ── COMPACT HIGH-DENSITY PLOT CARD ── */
-.plot-card { background: #fff; border-radius: 8px; padding: 8px 7px 6px; border: 1.5px solid #e2e8f0; cursor: pointer; transition: all 0.15s; position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 82px; }
+.plot-card { background: #fff; border-radius: 8px; padding: 8px 7px 6px; border: 1.5px solid #e2e8f0; cursor: pointer; transition: all 0.15s; position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 82px; min-width: 0; box-sizing: border-box; overflow: hidden; }
 .plot-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.1); border-color: #7B1A1A; z-index: 10; }
 .plot-card.status-sold      { background: #fef2f2; border-color: #fca5a5; }
 .plot-card.status-reserved  { background: #fffbeb; border-color: #fde68a; }
 .plot-card.status-available { background: #f0fdf4; border-color: #bbf7d0; }
 .plot-card.status-mortgage  { background: #eeef2f5; border-color: #c7d2fe; }
 
-.pc-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.pc-top { display: flex; justify-content: space-between; align-items: flex-start; min-width: 0; }
 .pc-num { font-size: 14px; font-weight: 700; font-family: 'Playfair Display', serif; color: #7B1A1A; line-height: 1.1; }
 .pc-corner { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .corner-available { background: #16a34a; }
@@ -150,13 +150,13 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
 .corner-sold      { background: #dc2626; }
 .corner-mortgage { background: #4338ca; }
 
-.pc-mid { margin-top: 3px; }
-.pc-size { font-size: 10px; font-weight: 600; color: #475569; }
+.pc-mid { margin-top: 3px; min-width: 0; }
+.pc-size { font-size: 10px; font-weight: 600; color: #475569; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pc-facing { font-size: 9px; color: #64748b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; margin-top: 1px; }
 
-.pc-bottom { margin-top: 5px; display: flex; justify-content: space-between; align-items: center; gap: 2px; }
-.pc-price-chip { font-size: 9px; font-weight: 700; color: #1e293b; background: rgba(0,0,0,0.04); padding: 1px 4px; border-radius: 4px; }
-.pc-badge { padding: 1px 5px; border-radius: 6px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2px; text-align: center; }
+.pc-bottom { margin-top: 5px; display: flex; justify-content: space-between; align-items: center; gap: 2px; min-width: 0; width: 100%; }
+.pc-price-chip { font-size: 9px; font-weight: 700; color: #1e293b; background: rgba(0,0,0,0.04); padding: 1px 4px; border-radius: 4px; flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pc-badge { padding: 1px 5px; border-radius: 6px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2px; text-align: center; flex-shrink: 0; white-space: nowrap; }
 .badge-available { background: #dcfce7; color: #15803d; }
 .badge-reserved  { background: #fef3c7; color: #92400e; }
 .badge-sold      { background: #fee2e2; color: #991b1b; }
@@ -205,45 +205,45 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
 }
 
 @media (max-width: 600px) {
-  header { padding: 10px 12px; height: auto; min-height: 60px; width: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; gap: 8px; position: relative; }
+  header { padding: 10px 10px; height: auto; min-height: 60px; width: 100%; max-width: 100vw; box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; gap: 8px; position: relative; }
   .header-logo { display: flex; justify-content: flex-start; align-items: center; width: 100%; padding-right: 140px; }
   .header-logo-text { font-size: 16px; }
   .header-right { display: flex; flex-direction: column; width: 100%; gap: 6px; }
-  .header-actions { display: flex; align-items: center; gap: 6px; position: absolute; right: 12px; top: 10px; }
+  .header-actions { display: flex; align-items: center; gap: 6px; position: absolute; right: 10px; top: 10px; }
   .header-stats { display: flex; gap: 4px; overflow-x: auto; width: 100%; padding-bottom: 2px; -webkit-overflow-scrolling: touch; margin-top: 2px; }
   .stat-pill { font-size: 9.5px; padding: 3px 7px; flex-shrink: 0; }
   .stat-dot { width: 6px; height: 6px; }
   .updates-btn, .action-btn { padding: 4px 10px; font-size: 11px; }
   .sync-badge { padding: 4px 10px; font-size: 11px; }
   
-  .summary-row { grid-template-columns: repeat(2,1fr); gap: 8px; padding: 10px 10px 0; width: 100%; box-sizing: border-box; }
-  .summary-card { padding: 12px 10px; border-radius: 10px; }
+  .summary-row { grid-template-columns: repeat(2,1fr); gap: 6px; padding: 8px 8px 0; width: 100%; max-width: 100vw; box-sizing: border-box; }
+  .summary-card { padding: 10px 8px; border-radius: 10px; }
   .sc-label { font-size: 9px; letter-spacing: 0.5px; }
-  .sc-value { font-size: 22px; }
-  .sc-icon { font-size: 22px; }
-  .sc-progress { margin: 8px 10px 0; padding: 10px 12px; border-radius: 10px; width: calc(100% - 20px); box-sizing: border-box; }
+  .sc-value { font-size: 20px; }
+  .sc-icon { font-size: 20px; }
+  .sc-progress { margin: 6px 8px 0; padding: 8px 10px; border-radius: 10px; width: calc(100% - 16px); max-width: calc(100vw - 16px); box-sizing: border-box; }
   .sc-progress label { font-size: 10px; }
   
-  .controls { padding: 10px 10px 4px; gap: 6px; width: 100%; box-sizing: border-box; }
-  .filter-btn { padding: 5px 10px; font-size: 11px; border-radius: 16px; }
+  .controls { padding: 8px 8px 4px; gap: 5px; width: 100%; max-width: 100vw; box-sizing: border-box; }
+  .filter-btn { padding: 4px 9px; font-size: 10.5px; border-radius: 16px; }
   .search-box { width: 100%; min-width: unset; max-width: 100%; order: 5; }
-  .search-box input { font-size: 13px; padding: 8px 14px; }
+  .search-box input { font-size: 12px; padding: 7px 12px; }
   .tool-btn-group { order: 6; width: 100%; justify-content: flex-end; }
   
-  .size-filter-bar { padding: 0 10px 6px; gap: 6px; width: 100%; box-sizing: border-box; }
-  .size-presets { gap: 4px; }
-  .size-preset-btn, .budget-preset-btn { font-size: 10px; padding: 3px 8px; }
-  .size-custom input { width: 60px; font-size: 11px; padding: 3px 4px; }
+  .size-filter-bar { padding: 0 8px 6px; gap: 5px; width: 100%; max-width: 100vw; box-sizing: border-box; }
+  .size-presets { gap: 3px; }
+  .size-preset-btn, .budget-preset-btn { font-size: 9.5px; padding: 3px 6px; }
+  .size-custom input { width: 52px; font-size: 10.5px; padding: 3px 4px; }
 
-  .legend { padding: 0 10px 6px; font-size: 10.5px; gap: 10px; flex-wrap: wrap; }
-  .grid-section { padding: 4px 10px 24px; width: 100%; box-sizing: border-box; }
-  .plot-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; box-sizing: border-box; }
-  .plot-card { padding: 7px 6px 5px; min-height: 76px; }
-  .pc-num { font-size: 13px; }
-  .pc-size { font-size: 9.5px; }
-  .pc-facing { font-size: 9px; }
-  .pc-price-chip { font-size: 8.5px; padding: 1px 4px; }
-  .pc-badge { font-size: 8px; padding: 1px 4px; }
+  .legend { padding: 0 8px 6px; font-size: 10px; gap: 8px; flex-wrap: wrap; }
+  .grid-section { padding: 4px 6px 24px; width: 100%; max-width: 100vw; box-sizing: border-box; overflow-x: hidden; }
+  .plot-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; width: 100%; max-width: 100%; box-sizing: border-box; }
+  .plot-card { padding: 6px 5px 4px; min-height: 72px; min-width: 0; box-sizing: border-box; overflow: hidden; }
+  .pc-num { font-size: 12px; }
+  .pc-size { font-size: 8.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pc-facing { font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pc-price-chip { font-size: 7.5px; padding: 1px 2px; flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pc-badge { font-size: 7px; padding: 1px 3px; flex-shrink: 0; white-space: nowrap; }
   .updates-panel { width: 100%; }
   .modal-overlay { align-items: flex-end; }
   .modal-box { width: 100%; max-width: 100%; border-radius: 18px 18px 0 0; max-height: 92vh; }
