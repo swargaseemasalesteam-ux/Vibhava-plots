@@ -1027,21 +1027,16 @@ function closeDetailModal() {
 }
 
 // ── BOOKING MODAL ─────────────────────────────────────────────────────────
-function getEffectiveBaseRate(p, planName) {
+function getPlanTotalPrice(p, planName) {
   if (!p) return 0;
-  let base = Number(p.baseRate) || 0;
-  if (base <= 0) {
-    const sizeNum = parseFloat(p.size) || 0;
-    const totalNum = Number(p.total) || 0;
-    if (totalNum > 0 && sizeNum > 0) {
-      const sqydRate = Math.round(totalNum / sizeNum);
-      base = sqydRate - (Number(p.addRate) || 0) - (Number(p.corpusFund) || 0);
-    }
-  }
+  const stdTotal = Number(p.total) || 0;
+  const sizeNum = parseFloat(p.size) || 0;
+  
   if (planName && planName.toString().includes('7 Days')) {
-    return Math.max(0, base - 200);
+    const discountAmt = Math.round(sizeNum * 200);
+    return Math.max(0, stdTotal - discountAmt);
   }
-  return Math.max(0, base);
+  return stdTotal;
 }
 
 async function loadPlans() {
@@ -1062,10 +1057,7 @@ async function renderPlanCards() {
   const container = document.getElementById('plan-cards');
   container.style.display = 'flex';
   container.innerHTML = plans.map((plan, i) => {
-    const base   = getEffectiveBaseRate(p, plan.name);
-    const add    = (plan.addRate    != null) ? plan.addRate    : (p.addRate || 0);
-    const corpus = (plan.corpusRate != null) ? plan.corpusRate : (p.corpusFund || 0);
-    const total  = Math.round(parseFloat(p.size) * (base + add + corpus));
+    const total = getPlanTotalPrice(p, plan.name);
     return `<div class="plan-card" onclick="selectPlan(${i})" id="plan-card-${i}">
       <div class="plan-card-title">${plan.name}</div>
       <div class="plan-card-desc">${plan.desc || ''}</div>
