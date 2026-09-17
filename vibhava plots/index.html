@@ -1027,13 +1027,24 @@ function closeDetailModal() {
 }
 
 // ── BOOKING MODAL ─────────────────────────────────────────────────────────
+function getEffectiveBaseRate(p, planName) {
+  if (!p) return 0;
+  let base = Number(p.baseRate) || 0;
+  if (base <= 0) {
+    const sizeNum = parseFloat(p.size) || 0;
+    const totalNum = Number(p.total) || 0;
+    if (totalNum > 0 && sizeNum > 0) {
+      const sqydRate = Math.round(totalNum / sizeNum);
+      base = sqydRate - (Number(p.addRate) || 0) - (Number(p.corpusFund) || 0);
+    }
+  }
+  if (planName && planName.toString().includes('7 Days')) {
+    return Math.max(0, base - 200);
+  }
+  return Math.max(0, base);
+}
+
 async function loadPlans() {
-  if (plansCache) return plansCache;
-  try {
-    const res  = await fetch(`${SCRIPT_URL}?action=getPlans`, { cache: 'no-store' });
-    const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) { plansCache = data; return data; }
-  } catch(e) {}
   plansCache = [
     { name: '7 Days Plan',        baseRate: null, addRate: null, corpusRate: null, desc: 'Full payment within 7 days (₹200/sq.yd discount)' },
     { name: '25% + 30 Days Plan', baseRate: null, addRate: null, corpusRate: null, desc: '25% allotment amount + 30 days timeline', pct25: true }
@@ -1051,9 +1062,9 @@ async function renderPlanCards() {
   const container = document.getElementById('plan-cards');
   container.style.display = 'flex';
   container.innerHTML = plans.map((plan, i) => {
-    const base   = (plan.baseRate   != null) ? plan.baseRate   : (plan.name.includes('7 Days') ? Math.max(0, p.baseRate - 200) : p.baseRate);
-    const add    = (plan.addRate    != null) ? plan.addRate    : p.addRate;
-    const corpus = (plan.corpusRate != null) ? plan.corpusRate : p.corpusFund;
+    const base   = getEffectiveBaseRate(p, plan.name);
+    const add    = (plan.addRate    != null) ? plan.addRate    : (p.addRate || 0);
+    const corpus = (plan.corpusRate != null) ? plan.corpusRate : (p.corpusFund || 0);
     const total  = Math.round(parseFloat(p.size) * (base + add + corpus));
     return `<div class="plan-card" onclick="selectPlan(${i})" id="plan-card-${i}">
       <div class="plan-card-title">${plan.name}</div>
@@ -1075,9 +1086,9 @@ function selectPlan(idx) {
   const cardEl = document.getElementById('plan-card-' + idx);
   if (cardEl) cardEl.classList.add('selected');
 
-  const base   = (selectedPlan.baseRate   != null) ? selectedPlan.baseRate   : (selectedPlan.name.includes('7 Days') ? Math.max(0, p.baseRate - 200) : p.baseRate);
-  const add    = (selectedPlan.addRate    != null) ? selectedPlan.addRate    : p.addRate;
-  const corpus = (selectedPlan.corpusRate != null) ? selectedPlan.corpusRate : p.corpusFund;
+  const base   = getEffectiveBaseRate(p, selectedPlan.name);
+  const add    = (selectedPlan.addRate    != null) ? selectedPlan.addRate    : (p.addRate || 0);
+  const corpus = (selectedPlan.corpusRate != null) ? selectedPlan.corpusRate : (p.corpusFund || 0);
   const total  = Math.round(parseFloat(p.size) * (base + add + corpus));
 
   document.getElementById('pp-base').textContent   = `₹${base.toLocaleString('en-IN')} / sq.yd`;
