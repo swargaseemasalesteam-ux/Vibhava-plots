@@ -1032,14 +1032,13 @@ async function loadPlans() {
   try {
     const res  = await fetch(`${SCRIPT_URL}?action=getPlans`, { cache: 'no-store' });
     const data = await res.json();
-    if (Array.isArray(data)) { plansCache = data; return data; }
+    if (Array.isArray(data) && data.length > 0) { plansCache = data; return data; }
   } catch(e) {}
-  return [
-    { name: '7 Days Plan',        baseRate: null, addRate: null, corpusRate: null, desc: 'Full payment within 7 days' },
-    { name: '25% + 30 Days Plan', baseRate: null, addRate: null, corpusRate: null, desc: '25% allotment amount + 30 days timeline' },
-    { name: '25% + 60 Days Plan', baseRate: null, addRate: null, corpusRate: null, desc: '25% allotment amount + 60 days timeline' },
-    { name: '25% + 90 Days Plan', baseRate: null, addRate: null, corpusRate: null, desc: '25% allotment amount + 90 days timeline' },
+  plansCache = [
+    { name: '7 Days Plan',        baseRate: null, addRate: null, corpusRate: null, desc: 'Full payment within 7 days (₹200/sq.yd discount)' },
+    { name: '25% + 30 Days Plan', baseRate: null, addRate: null, corpusRate: null, desc: '25% allotment amount + 30 days timeline', pct25: true }
   ];
+  return plansCache;
 }
 
 async function renderPlanCards() {
@@ -1052,7 +1051,7 @@ async function renderPlanCards() {
   const container = document.getElementById('plan-cards');
   container.style.display = 'flex';
   container.innerHTML = plans.map((plan, i) => {
-    const base   = (plan.baseRate   != null) ? plan.baseRate   : p.baseRate;
+    const base   = (plan.baseRate   != null) ? plan.baseRate   : (plan.name.includes('7 Days') ? Math.max(0, p.baseRate - 200) : p.baseRate);
     const add    = (plan.addRate    != null) ? plan.addRate    : p.addRate;
     const corpus = (plan.corpusRate != null) ? plan.corpusRate : p.corpusFund;
     const total  = Math.round(parseFloat(p.size) * (base + add + corpus));
@@ -1062,16 +1061,21 @@ async function renderPlanCards() {
       <div class="plan-card-price">₹${total.toLocaleString('en-IN')}</div>
     </div>`;
   }).join('');
+
+  if (plans.length > 0) {
+    selectPlan(0);
+  }
 }
 
 function selectPlan(idx) {
   const p = getPlotDef(currentPlotId);
-  if (!p || !plansCache) return;
+  if (!p || !plansCache || !plansCache[idx]) return;
   selectedPlan = plansCache[idx];
   document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('plan-card-' + idx).classList.add('selected');
+  const cardEl = document.getElementById('plan-card-' + idx);
+  if (cardEl) cardEl.classList.add('selected');
 
-  const base   = (selectedPlan.baseRate   != null) ? selectedPlan.baseRate   : p.baseRate;
+  const base   = (selectedPlan.baseRate   != null) ? selectedPlan.baseRate   : (selectedPlan.name.includes('7 Days') ? Math.max(0, p.baseRate - 200) : p.baseRate);
   const add    = (selectedPlan.addRate    != null) ? selectedPlan.addRate    : p.addRate;
   const corpus = (selectedPlan.corpusRate != null) ? selectedPlan.corpusRate : p.corpusFund;
   const total  = Math.round(parseFloat(p.size) * (base + add + corpus));
