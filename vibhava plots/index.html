@@ -1078,12 +1078,18 @@ function selectPlan(idx) {
   const cardEl = document.getElementById('plan-card-' + idx);
   if (cardEl) cardEl.classList.add('selected');
 
-  const base   = getEffectiveBaseRate(p, selectedPlan.name);
-  const add    = (selectedPlan.addRate    != null) ? selectedPlan.addRate    : (p.addRate || 0);
-  const corpus = (selectedPlan.corpusRate != null) ? selectedPlan.corpusRate : (p.corpusFund || 0);
-  const total  = Math.round(parseFloat(p.size) * (base + add + corpus));
+  const total = getPlanTotalPrice(p, selectedPlan.name);
+  const sizeNum = parseFloat(p.size) || 1;
+  const add = Number(p.addRate) || 0;
+  const corpus = Number(p.corpusFund) || 0;
+  
+  // Calculate effective base rate per sq.yd
+  const sqydRate = Math.round(total / sizeNum);
+  let base = Math.max(0, sqydRate - add - corpus);
 
-  document.getElementById('pp-base').textContent   = `₹${base.toLocaleString('en-IN')} / sq.yd`;
+  document.getElementById('pp-base').textContent   = selectedPlan.name.includes('7 Days')
+    ? `₹${base.toLocaleString('en-IN')} / sq.yd (₹200 off)`
+    : `₹${base.toLocaleString('en-IN')} / sq.yd`;
   document.getElementById('pp-add').textContent    = `₹${add.toLocaleString('en-IN')} / sq.yd`;
   document.getElementById('pp-corpus').textContent = `₹${corpus.toLocaleString('en-IN')} / sq.yd`;
   document.getElementById('pp-total').textContent  = `₹${total.toLocaleString('en-IN')}`;
@@ -1094,7 +1100,10 @@ function selectPlan(idx) {
     const later = total - now;
     box.innerHTML = `<span style="color:#7B1A1A;font-weight:700;">25% Now:</span> ₹${now.toLocaleString('en-IN')} &nbsp;|&nbsp; <span style="color:#7B1A1A;font-weight:700;">Balance:</span> ₹${later.toLocaleString('en-IN')}`;
   } else {
-    box.innerHTML = `<span style="color:#7B1A1A;font-weight:700;">Full Payment:</span> ₹${total.toLocaleString('en-IN')}`;
+    const stdTotal = Number(p.total) || 0;
+    const saved = Math.max(0, stdTotal - total);
+    box.innerHTML = `<span style="color:#7B1A1A;font-weight:700;">Full Payment (7 Days):</span> ₹${total.toLocaleString('en-IN')}` +
+      (saved > 0 ? ` &nbsp;|&nbsp; <span style="color:#15803d;font-weight:700;">🎉 Saved ₹${saved.toLocaleString('en-IN')}</span>` : '');
   }
   document.getElementById('plan-price-box').style.display = 'block';
 }
