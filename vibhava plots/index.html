@@ -297,7 +297,7 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
 .dm-book-btn:hover { opacity: 0.9; }
 
 /* ── BOOKING MODAL ── */
-.status-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+.status-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
 .status-opt { padding: 12px 6px; border-radius: 12px; border: 2px solid #f0e8e0; cursor: pointer; text-align: center; transition: all 0.15s; font-weight: 600; font-size: 13px; }
 .status-opt:hover { border-color: #7B1A1A; }
 .status-opt.selected.opt-available { background: #f0fdf4; border-color: #27ae60; color: #15803d; }
@@ -544,11 +544,13 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
       </div>
       <div class="booking-info-card" id="booking-info-card" style="display:none">
         <h4>📋 Booking Details</h4>
+        <div class="booking-info-row"><span>Status</span><strong id="bi-status">—</strong></div>
         <div class="booking-info-row"><span>Buyer</span><strong id="bi-buyer">—</strong></div>
         <div class="booking-info-row"><span>Sales Person</span><strong id="bi-salesperson">—</strong></div>
+        <div id="bi-note" style="margin-top:8px;padding-top:8px;border-top:1px dashed #f0e8e0;font-size:11px;color:#888;font-style:italic;">🔒 Changes to reserved/sold plots must be made in Google Sheet.</div>
       </div>
-      <button class="dm-book-btn" id="dm-book-btn" onclick="openBookingModal()">
-        ✏️ Book / Update Plot
+      <button class="dm-book-btn" id="dm-book-btn" onclick="openBookingModal(currentPlotId)">
+        ✏️ Book Plot
       </button>
     </div>
   </div>
@@ -563,9 +565,6 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
     </div>
     <div class="modal-body">
       <div class="status-options">
-        <div class="status-opt opt-available" onclick="selectStatus('available')">
-          <div class="opt-icon">✅</div>Release
-        </div>
         <div class="status-opt opt-reserved" onclick="selectStatus('reserved')">
           <div class="opt-icon">🔖</div>Reserve
         </div>
@@ -580,8 +579,18 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
       <label class="modal-label">BOOKING DATE</label>
       <input class="modal-input" id="modal-date" type="date">
       <label class="modal-label">PAYMENT PLAN</label>
-      <div id="plan-loading" style="font-size:12px;color:#aaa;padding:8px 0;">Loading plans…</div>
-      <div id="plan-cards" style="display:none;flex-direction:column;gap:8px;"></div>
+      <div id="plan-cards" style="display:flex;flex-direction:column;gap:8px;">
+        <div class="plan-card" onclick="selectPlan(0)" id="plan-card-0">
+          <div class="plan-card-title">7 Days Plan</div>
+          <div class="plan-card-desc">Full payment within 7 days</div>
+          <div class="plan-card-price" id="plan-card-price-0">₹—</div>
+        </div>
+        <div class="plan-card" onclick="selectPlan(1)" id="plan-card-1">
+          <div class="plan-card-title">25% + 30 Days Plan</div>
+          <div class="plan-card-desc">25% allotment amount + 30 days timeline</div>
+          <div class="plan-card-price" id="plan-card-price-1">₹—</div>
+        </div>
+      </div>
       <div id="plan-price-box" style="display:none;background:#fdf8f0;border:1.5px solid #f0e8e0;border-radius:12px;padding:14px 16px;margin-top:10px;">
         <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:#C8973A;font-weight:700;margin-bottom:10px;">💰 Plan Pricing</div>
         <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
@@ -615,7 +624,7 @@ header { background: linear-gradient(135deg, #7B1A1A 0%, #4a0e0e 100%); padding:
       <input class="modal-input" id="modal-salesperson" type="text" placeholder="Enter name…" style="display:none;margin-top:6px;">
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeBookingModal()">Cancel</button>
-        <button class="btn-save" id="btn-save" onclick="saveStatus()">Save</button>
+        <button class="btn-save" id="btn-save" onclick="saveStatus()">Confirm Booking</button>
       </div>
     </div>
   </div>
@@ -1003,152 +1012,152 @@ function openDetailModal(id) {
 
   const card = document.getElementById('booking-info-card');
   const bookBtn = document.getElementById('dm-book-btn');
+  const noteEl = document.getElementById('bi-note');
   
   if (p.status === 'mortgage') {
+    document.getElementById('bi-status').textContent     = '🏦 Mortgage';
     document.getElementById('bi-buyer').textContent       = 'This plot is under mortgage';
     document.getElementById('bi-salesperson').textContent = '—';
+    if (noteEl) noteEl.style.display = 'none';
     card.style.display = 'block';
     bookBtn.style.display = 'none';
   } else if (p.status === 'reserved' || p.status === 'sold') {
+    document.getElementById('bi-status').textContent      = p.status === 'sold' ? '🏠 Sold' : '🔖 Reserved';
     document.getElementById('bi-buyer').textContent      = p.buyer      || '—';
     document.getElementById('bi-salesperson').textContent= p.salesperson|| '—';
+    if (noteEl) noteEl.style.display = 'block';
     card.style.display = 'block';
-    bookBtn.style.display = 'flex';
+    bookBtn.style.display = 'none';
   } else {
     card.style.display = 'none';
     bookBtn.style.display = 'flex';
+    bookBtn.innerHTML = '✏️ Book Plot';
   }
   document.getElementById('detail-modal').classList.add('open');
 }
 
 function closeDetailModal() {
   document.getElementById('detail-modal').classList.remove('open');
-  currentPlotId = null;
 }
 
 // ── BOOKING MODAL ─────────────────────────────────────────────────────────
-function getPlanTotalPrice(p, planName) {
-  if (!p) return 0;
-  const stdTotal = Number(p.total) || 0;
-  const sizeNum = parseFloat(p.size) || 0;
-  
-  if (planName && planName.toString().includes('7 Days')) {
-    const discountAmt = Math.round(sizeNum * 200);
-    return Math.max(0, stdTotal - discountAmt);
-  }
-  return stdTotal;
-}
-
-async function loadPlans() {
+function loadPlans() {
   plansCache = [
-    { name: '7 Days Plan',        baseRate: null, addRate: null, corpusRate: null, desc: 'Full payment within 7 days (₹200/sq.yd discount)' },
-    { name: '25% + 30 Days Plan', baseRate: null, addRate: null, corpusRate: null, desc: '25% allotment amount + 30 days timeline', pct25: true }
+    { name: '7 Days Plan',        discountPerSqYd: 200, desc: '₹200/sq.yd discount for full payment within 7 days', pct25: false },
+    { name: '25% + 30 Days Plan', discountPerSqYd: 0,   desc: 'Standard rate · 25% allotment amount + 30 days timeline', pct25: true },
   ];
   return plansCache;
 }
 
-async function renderPlanCards() {
-  const p = getPlotDef(currentPlotId);
+function renderPlanCards(plotDef) {
+  const p = plotDef || getPlotDef(currentPlotId);
+  const plans = loadPlans();
   if (!p) return;
-  document.getElementById('plan-loading').style.display = 'block';
-  document.getElementById('plan-cards').style.display   = 'none';
-  const plans = await loadPlans();
-  document.getElementById('plan-loading').style.display = 'none';
-  const container = document.getElementById('plan-cards');
-  container.style.display = 'flex';
-  container.innerHTML = plans.map((plan, i) => {
-    const total = getPlanTotalPrice(p, plan.name);
-    return `<div class="plan-card" onclick="selectPlan(${i})" id="plan-card-${i}">
-      <div class="plan-card-title">${plan.name}</div>
-      <div class="plan-card-desc">${plan.desc || ''}</div>
-      <div class="plan-card-price">₹${total.toLocaleString('en-IN')}</div>
-    </div>`;
-  }).join('');
 
-  if (plans.length > 0) {
-    selectPlan(0);
-  }
+  const sizeNum   = parseFloat(p.size)       || 0;
+  const baseVal   = Number(p.baseRate)   || 0;
+  const addVal    = Number(p.addRate)    || 0;
+  const corpusVal = Number(p.corpusFund) || 0;
+
+  plans.forEach((plan, i) => {
+    const discount      = plan.discountPerSqYd || 0;
+    const effectiveBase = Math.max(0, baseVal - discount);
+    const total         = Math.round(sizeNum * (effectiveBase + addVal + corpusVal));
+    const formattedTotal = total ? `₹${total.toLocaleString('en-IN')}` : '—';
+
+    const priceEl = document.getElementById('plan-card-price-' + i);
+    if (priceEl) priceEl.textContent = formattedTotal;
+  });
 }
 
 function selectPlan(idx) {
-  const p = getPlotDef(currentPlotId);
-  if (!p || !plansCache || !plansCache[idx]) return;
+  if (!plansCache) loadPlans();
   selectedPlan = plansCache[idx];
+  if (!selectedPlan) return;
+
   document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
   const cardEl = document.getElementById('plan-card-' + idx);
   if (cardEl) cardEl.classList.add('selected');
 
-  const total = getPlanTotalPrice(p, selectedPlan.name);
-  const sizeNum = parseFloat(p.size) || 1;
-  const add = Number(p.addRate) || 0;
-  const corpus = Number(p.corpusFund) || 0;
-  
-  // Calculate effective base rate per sq.yd
-  const sqydRate = Math.round(total / sizeNum);
-  let base = Math.max(0, sqydRate - add - corpus);
+  const p = getPlotDef(currentPlotId);
+  const sizeNum   = p ? (parseFloat(p.size)       || 0) : 0;
+  const baseVal   = p ? (Number(p.baseRate)   || 0) : 0;
+  const addVal    = p ? (Number(p.addRate)    || 0) : 0;
+  const corpusVal = p ? (Number(p.corpusFund) || 0) : 0;
 
-  document.getElementById('pp-base').textContent   = selectedPlan.name.includes('7 Days')
-    ? `₹${base.toLocaleString('en-IN')} / sq.yd (₹200 off)`
-    : `₹${base.toLocaleString('en-IN')} / sq.yd`;
-  document.getElementById('pp-add').textContent    = `₹${add.toLocaleString('en-IN')} / sq.yd`;
-  document.getElementById('pp-corpus').textContent = `₹${corpus.toLocaleString('en-IN')} / sq.yd`;
-  document.getElementById('pp-total').textContent  = `₹${total.toLocaleString('en-IN')}`;
+  const discount      = selectedPlan.discountPerSqYd || 0;
+  const effectiveBase = Math.max(0, baseVal - discount);
+  const total         = Math.round(sizeNum * (effectiveBase + addVal + corpusVal));
+
+  const baseEl   = document.getElementById('pp-base');
+  const addEl    = document.getElementById('pp-add');
+  const corpusEl = document.getElementById('pp-corpus');
+  const totalEl  = document.getElementById('pp-total');
+
+  if (baseEl)   baseEl.textContent   = `₹${effectiveBase.toLocaleString('en-IN')} / sq.yd` + (discount ? ` (₹${discount} off)` : '');
+  if (addEl)    addEl.textContent    = `₹${addVal.toLocaleString('en-IN')} / sq.yd`;
+  if (corpusEl) corpusEl.textContent = `₹${corpusVal.toLocaleString('en-IN')} / sq.yd`;
+  if (totalEl)  totalEl.textContent  = `₹${total.toLocaleString('en-IN')}`;
 
   const box = document.getElementById('pp-breakdown');
-  if (selectedPlan.pct25) {
-    const now   = Math.round(total * 0.25);
-    const later = total - now;
-    box.innerHTML = `<span style="color:#7B1A1A;font-weight:700;">25% Now:</span> ₹${now.toLocaleString('en-IN')} &nbsp;|&nbsp; <span style="color:#7B1A1A;font-weight:700;">Balance:</span> ₹${later.toLocaleString('en-IN')}`;
-  } else {
-    const stdTotal = Number(p.total) || 0;
-    const saved = Math.max(0, stdTotal - total);
-    box.innerHTML = `<span style="color:#7B1A1A;font-weight:700;">Full Payment (7 Days):</span> ₹${total.toLocaleString('en-IN')}` +
-      (saved > 0 ? ` &nbsp;|&nbsp; <span style="color:#15803d;font-weight:700;">🎉 Saved ₹${saved.toLocaleString('en-IN')}</span>` : '');
+  if (box) {
+    if (selectedPlan.pct25) {
+      const now   = Math.round(total * 0.25);
+      const later = total - now;
+      box.innerHTML = `<span style="color:#7B1A1A;font-weight:700;">25% Now:</span> ₹${now.toLocaleString('en-IN')} &nbsp;|&nbsp; <span style="color:#7B1A1A;font-weight:700;">Balance:</span> ₹${later.toLocaleString('en-IN')}`;
+    } else {
+      const savings = Math.round(sizeNum * discount);
+      box.innerHTML = `<span style="color:#7B1A1A;font-weight:700;">Full Payment (7 Days):</span> ₹${total.toLocaleString('en-IN')}` + (savings ? ` &nbsp;|&nbsp; <span style="color:#155724;font-weight:700;">🎉 Saved ₹${savings.toLocaleString('en-IN')}</span>` : '');
+    }
   }
-  document.getElementById('plan-price-box').style.display = 'block';
+
+  const priceBox = document.getElementById('plan-price-box');
+  if (priceBox) priceBox.style.display = 'block';
 }
 
-function openBookingModal() {
-  const p = getPlotDef(currentPlotId);
+function getPlotDef(id) { if (id == null) return null; return plotDefs.find(p => String(p.id) === String(id)); }
+
+function openBookingModal(id) {
+  const targetId = id || currentPlotId;
+  const p = getPlotDef(targetId);
   if (!p) return;
-  document.getElementById('bk-title').textContent = `Book / Update Plot #${p.id}`;
+
+  if (p.status !== 'available') {
+    showToast('⚠️ Only Available plots can be booked. Changes to reserved/sold plots must be made in Google Sheet.', 'error');
+    return;
+  }
+
+  currentPlotId = String(p.id);
+  closeDetailModal();
+
+  document.getElementById('bk-title').textContent = `Book Plot #${p.id}`;
   document.getElementById('bk-sub').textContent   = `${p.size} sq.yds · ${p.facing}`;
   
-  selectStatus(p.status === 'mortgage' ? 'available' : p.status);
+  selectStatus('reserved');
 
-  document.getElementById('modal-buyer').value = p.buyer || '';
-  document.getElementById('modal-phone').value = p.phone || '';
+  document.getElementById('modal-buyer').value = '';
+  document.getElementById('modal-phone').value = '';
   document.getElementById('modal-date').value  = new Date().toISOString().split('T')[0];
 
   const spSelect = document.getElementById('modal-salesperson-select');
   const spInput  = document.getElementById('modal-salesperson');
-  const knownSalespeople = ['Bhanu','Mohan','Ramesh','Venu','Praveen','Mahesh','Naveen','Narsi Reddy'];
+  spSelect.value = '';
+  spInput.style.display = 'none';
+  spInput.value = '';
 
-  if (knownSalespeople.includes(p.salesperson)) {
-    spSelect.value = p.salesperson;
-    spInput.style.display = 'none';
-    spInput.value = '';
-  } else if (p.salesperson) {
-    spSelect.value = '__other__';
-    spInput.style.display = 'block';
-    spInput.value = p.salesperson;
-  } else {
-    spSelect.value = '';
-    spInput.style.display = 'none';
-    spInput.value = '';
-  }
-
-  selectedPlan = null;
-  document.getElementById('plan-price-box').style.display = 'none';
   document.getElementById('btn-save').disabled    = false;
-  document.getElementById('btn-save').textContent = 'Save';
+  document.getElementById('btn-save').textContent = 'Confirm Booking';
   document.getElementById('booking-modal').classList.add('open');
-  renderPlanCards();
+  try {
+    renderPlanCards(p);
+    selectPlan(0);
+  } catch(e) {}
 }
 
 function closeBookingModal() { document.getElementById('booking-modal').classList.remove('open'); }
 
 function selectStatus(s) {
+  if (s !== 'reserved' && s !== 'sold') return;
   selectedStatus = s;
   document.querySelectorAll('.status-opt').forEach(el => el.classList.remove('selected'));
   const opt = document.querySelector(`.opt-${s}`);
@@ -1163,7 +1172,16 @@ function handleSalespersonSelect(val) {
 
 // ── SAVE STATUS ───────────────────────────────────────────────────────────
 async function saveStatus() {
-  if (!selectedStatus) { showToast('Please select a status', 'error'); return; }
+  const p = getPlotDef(currentPlotId);
+  if (!p || p.status !== 'available') {
+    showToast('⚠️ Only Available plots can be booked. Changes must be made in Google Sheet.', 'error');
+    return;
+  }
+
+  if (selectedStatus !== 'reserved' && selectedStatus !== 'sold') {
+    showToast('Please select Reserve or Sold', 'error');
+    return;
+  }
 
   const buyer       = document.getElementById('modal-buyer').value.trim();
   const phone       = document.getElementById('modal-phone').value.trim();
@@ -1171,14 +1189,12 @@ async function saveStatus() {
   const scheme      = selectedPlan ? selectedPlan.name : '';
   const spSelect    = document.getElementById('modal-salesperson-select').value;
   const salesperson = (spSelect === '__other__' || spSelect === '')
-    ? document.getElementById('modal-salesperson').value.trim()
+    ? (document.getElementById('modal-salesperson').value.trim() || 'Direct')
     : spSelect;
 
-  if (selectedStatus !== 'available') {
-    if (!buyer)       { showToast('Please enter buyer name', 'error'); document.getElementById('modal-buyer').focus(); return; }
-    if (!phone)       { showToast('Please enter phone number', 'error'); document.getElementById('modal-phone').focus(); return; }
-    if (!salesperson) { showToast('Please select a sales person', 'error'); document.getElementById('modal-salesperson-select').focus(); return; }
-  }
+  if (!buyer) { showToast('Please enter buyer name', 'error'); document.getElementById('modal-buyer').focus(); return; }
+  if (!phone) { showToast('Please enter phone number', 'error'); document.getElementById('modal-phone').focus(); return; }
+  if (!salesperson || salesperson === 'Direct') { showToast('Please select a sales person', 'error'); document.getElementById('modal-salesperson-select').focus(); return; }
 
   const btn = document.getElementById('btn-save');
   btn.disabled = true; btn.textContent = 'Saving…';
@@ -1186,22 +1202,23 @@ async function saveStatus() {
   try {
     await saveToSheet(currentPlotId, selectedStatus, buyer, phone, bookingDate, scheme, salesperson);
 
-    const p = getPlotDef(currentPlotId);
-    if (p) {
-      p.status = selectedStatus; p.buyer = buyer; p.phone = phone;
-      p.scheme = scheme; p.salesperson = salesperson;
-    }
+    p.status = selectedStatus;
+    p.buyer = buyer;
+    p.phone = phone;
+    p.scheme = scheme;
+    p.salesperson = salesperson;
+
     closeBookingModal();
     closeDetailModal();
     renderGrid();
     updateCounts();
     loadTodaysLog();
 
-    const msgs = { reserved:`🔖 Plot #${currentPlotId} reserved for ${buyer}`, sold:`🏠 Plot #${currentPlotId} sold to ${buyer}`, available:`✅ Plot #${currentPlotId} released` };
+    const msgs = { reserved:`🔖 Plot #${currentPlotId} reserved for ${buyer}`, sold:`🏠 Plot #${currentPlotId} sold to ${buyer}` };
     showToast(msgs[selectedStatus] || 'Saved!', 'success');
   } catch(e) {
     showToast('❌ Could not save. Check connection.', 'error');
-    btn.disabled = false; btn.textContent = 'Save';
+    btn.disabled = false; btn.textContent = 'Confirm Booking';
   }
 }
 
